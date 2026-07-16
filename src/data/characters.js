@@ -8,7 +8,7 @@ export const characters = [
     stat: 'Tangents Explored: 99+',
     bio: 'Classical Malayali girl, dancer, and yapper extraordinaire with big-sister energy. Curious about Hindi, always making people laugh.',
     achievement: 'BIG SISTER ENERGY 🌸',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'SB_01153-3.jpg'],
     farewellMessage: `Dear Yuktha,
 
 A piece of you will show up in the most unexpected of places long after you leave: in an inexplicably empty gulab jamun box, in conversations that run wild, and in a random curly-haired girl in a red dress posing for the camera. 
@@ -22,11 +22,11 @@ I hope you reach new heights and everywhere your heart desires you to go. Slay o
     name: 'Anagha',
     gender: 'female',
     title: '50 Tabs Open',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.jpg',
     stat: 'CPU Temp: 98°C',
     bio: 'Cute chechi energy, brilliant multi-disciplinary researcher (biology, data science, medical science). Always laughing, always working.',
     achievement: 'ASK HER ANYTHING 🧠',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'WhatsApp Image 2026-07-17 at 04.39.18 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.39.20.jpeg'],
     farewellMessage: `Dear Anagha,
 
 The lab closest to the door will feel so empty without seeing you type away on your laptop with fifty different tabs open, hair twice your size, and bluetooth neckbands playing retro songs. 
@@ -40,11 +40,11 @@ Never stop finding joy in the little things, and I wish you the absolute best on
     name: 'Anuthi',
     gender: 'female',
     title: 'Best Di / Mummy Aunty',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.png',
     stat: 'Sarees Draped: 42',
     bio: 'The campus safety net. Celebrates Diwali, saves you from failing courses, makes campus feel like home. Fellow MP resident.',
     achievement: 'HOME AWAY FROM HOME 🏡',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['WhatsApp Image 2026-07-17 at 04.41.27 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.41.27.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.45.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.59.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.00.jpeg'],
     farewellMessage: `Dear Anuthi Di,
 
 You have been the ultimate safety net for all of us. You made this campus feel like home. From Diwali Garba prep to surviving courses, pleating sarees, and late-night J Cafe cold coffees, you were always there. 
@@ -58,11 +58,11 @@ Some people don't just become seniors; they become the very heart of a place. I 
     name: 'Aryan',
     gender: 'male',
     title: 'The Strategist',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.png',
     stat: 'Expected Value: Max',
     bio: 'Physics genius, math wizard, tech guru, and coding club founding member. Teaches poker strategy, bets on everything.',
     achievement: 'ALL IN 🃏',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['WhatsApp Image 2026-07-17 at 04.41.27.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44 (2).jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.45.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.59.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.00.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.28.jpeg'],
     farewellMessage: `Dear Aryan,
 
 Thank you for the endless poker nights, for co-founding the coding club, and for bringing the HTML mailing revolution to campus. No conversation with you was ever boring—whether we were arguing about physics rigor, stock markets, or listening to a midnight lecture on Bitcoin.
@@ -76,11 +76,11 @@ I hope you keep taking bold bets, winning expects, and questioning the world. Go
     name: 'Niranjan',
     gender: 'female',
     title: 'Lab Big Sister / Chaotic Helpful',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.jpg',
     stat: 'Trek Crocs Worn: 100%',
     bio: 'Argentina supporter, Proteus hater, fellow veggie. Affectionate lab bully, academic advisor, and Crocs trek champion.',
     achievement: 'LAB BIG SISTER 🐧',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['20260111_084746.jpg', 'IMG_20260111_115544.jpg', 'WhatsApp Image 2026-07-17 at 04.39.20 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.39.21 (1).jpeg'],
     farewellMessage: `Dear Niranjan,
 
 Thank you for being the ultimate big sister figure in the lab. I could ask you anything, and you always had an answer (or a sarcastic comeback!). From our shared hatred of Proteus to being the only other vegetarian sharing food in the lab, you made daily life so much fun.
@@ -94,11 +94,11 @@ Keep being unapologetically yourself, CR. Wishing you a world of success and hap
     name: 'Sam',
     gender: 'female',
     title: 'The Mafia Boss',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.jpg',
     stat: 'Water Stolen: 15L',
     bio: 'Mazhavil co-founder, Erode snack supplier, Mafia mastermind, amazing dancer, and Hollow Knight/Silksong enthusiast.',
     achievement: 'YOU SURVIVED SAM AKKA 👑',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'IMG_20260111_120020.jpg', 'WhatsApp Image 2026-07-17 at 04.39.19.jpeg', 'WhatsApp Image 2026-07-17 at 04.39.21.jpeg'],
     farewellMessage: `Dear Sam Akka,
 
 You are officially the best person in the lab. Thank you for the Erode snacks, the amazing dance choreos that made the lab dance happen, and for letting me constantly steal water from your bottle because I forgot mine.
@@ -112,11 +112,11 @@ May your earring collection grow larger, and may Silksong actually release in yo
     name: 'Soujatya',
     gender: 'male',
     title: 'The Encyclopaedia (Dada)',
-    portrait: 'profile.jpg',
+    portrait: 'Profile.jpg',
     stat: 'Poetry Recited: 50+',
     bio: 'Bengali Dada, vintage radio. Discusses old films, political-cultural history, Urdu/Punjabi poetry, science, and music.',
     achievement: 'A CONVERSATION WORTH GETTING LOST IN 🌌',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['20260111_084746.jpg', 'IMG-20260201-WA0107.jpg', 'IMG_20250716_162854535.jpg', 'SB_01187-1.jpg'],
     farewellMessage: `Dear Soujatya (Dada),
 
 The lab is definitely going to feel quieter without you. Our sudden discussions about old Hindi songs, Urdu and Punjabi poetry, shayari, forgotten films, and books from every corner of the world made long lab hours fly by.
@@ -130,11 +130,11 @@ Above all, I'll miss your sincere friendship—the ordinary chats about work, fr
     name: 'Gati',
     gender: 'male',
     title: 'The Social Network',
-    portrait: 'profile.jpg',
+    portrait: 'profile.jpeg',
     stat: 'Exit Time: 1hr 30s',
     bio: 'Sweetest mean friend. Foodie, evolutionary plasticity fan, workshop roommate, and CDH exit-delay world record holder.',
     achievement: 'SOMEHOW, YOU KNOW EVERYONE 🌐',
-    memories: ['pic1.jpg', 'pic2.jpg', 'pic3.jpg', 'pic4.jpg'],
+    memories: ['WhatsApp Image 2026-07-17 at 04.39.22.jpeg', 'WhatsApp Image 2026-07-17 at 04.44.08 (1).jpeg'],
     farewellMessage: `Dear Gati,
 
 You are that friend who is literally everywhere. Thank you for the epic Chennai workshop memories, the food hunts, the evolutionary plasticity rants, and even the ridiculous Diwali fights. You are the perfect mix of sweet and playfully mean.
