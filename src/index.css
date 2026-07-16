@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Gochi+Hand&family=Outfit:wght@400;600;800&family=Press+Start+2P&family=VT323&display=swap');
+
+:root {
+  --bg-dark: #121216;
+  --bg-dark-card: #1c1c24;
+  --text-light: #f3f3f6;
+  --text-muted: #8e8e9f;
+  
+  --primary: #ff477e;
+  --primary-hover: #ff6b95;
+  --secondary: #06d6a0;
+  --secondary-hover: #26e4b4;
+  --accent: #ffd166;
+  --info: #118ab2;
+  --purple: #8338ec;
+  
+  --border-color: #000000;
+  --border-width: 3px;
+  --neo-shadow: 4px 4px 0px #000000;
+  --neo-shadow-hover: 1px 1px 0px #000000;
+  
+  --font-sans: 'Outfit', sans-serif;
+  --font-retro: 'Press Start 2P', monospace;
+  --font-mono: 'VT323', monospace;
+  --font-hand: 'Gochi Hand', cursive;
+  
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  overflow-x: hidden;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border-left: 2px solid var(--border-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Common Layouts */
+.game-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Neo-Brutalist Elements */
+.btn-neo {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 10px 20px;
+  background-color: var(--primary);
+  color: #000;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--neo-shadow);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn-neo:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000;
+}
+
+.btn-neo:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--neo-shadow-hover);
+}
+
+.btn-neo.secondary {
+  background-color: var(--secondary);
+}
+
+.btn-neo.accent {
+  background-color: var(--accent);
+}
+
+.btn-neo.purple {
+  background-color: var(--purple);
+  color: #fff;
+}
+
+.btn-neo.disabled {
+  background-color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: var(--neo-shadow) !important;
+  opacity: 0.6;
+}
+
+.card-neo {
+  background-color: var(--bg-dark-card);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--neo-shadow);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Text styles */
+.text-retro {
+  font-family: var(--font-retro);
+  line-height: 1.5;
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+}
+
+.text-hand {
+  font-family: var(--font-hand);
+  font-size: 1.8rem;
+}
+
+/* Glitch effects */
+.glitch-text {
+  position: relative;
+  animation: glitch 2.5s infinite;
+}
+
+@keyframes glitch {
+  0% { text-shadow: 2px 0 0 red, -2px 0 0 blue; }
+  2% { text-shadow: -2px 0 0 red, 2px 0 0 blue; }
+  4% { text-shadow: 0 0 0 red, 0 0 0 blue; }
+  100% { text-shadow: 0 0 0 red, 0 0 0 blue; }
+}
+
+/* Stickers */
+.sticker {
+  position: absolute;
+  pointer-events: none;
+  font-size: 2rem;
+  z-index: 10;
+  animation: float 4s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(-5deg); }
+  100% { transform: translateY(-8px) rotate(5deg); }
+}
+
+/* Draggable Polaroids */
+.polaroid {
+  background: #fbfbf8;
+  padding: 12px 12px 24px 12px;
+  border: 2px solid #ddd;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  cursor: grab;
+  position: absolute;
+  transition: transform 0.15s ease;
+  user-select: none;
+}
+
+.polaroid:active {
+  cursor: grabbing;
+  z-index: 100;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+}
+
+.polaroid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid #eee;
+  pointer-events: none;
+}
+
+.polaroid-caption {
+  font-family: var(--font-hand);
+  color: #2b2b2b;
+  font-size: 1.5rem;
+  margin-top: 10px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+/* Polaroid Tape */
+.polaroid::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: 30%;
+  width: 80px;
+  height: 25px;
+  background-color: rgba(255, 235, 150, 0.6);
+  transform: rotate(-3deg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  pointer-events: none;
+}
+
+/* Animations */
+.animate-bounce-hover:hover {
+  animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
+}
+
+/* Shake Animation */
+.animate-shake {
+  animation: shake 0.3s infinite;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(0px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(2px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(2px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
