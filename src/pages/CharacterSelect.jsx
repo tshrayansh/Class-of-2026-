@@ -91,8 +91,8 @@ export default function CharacterSelect({ onSelectCharacter, group }) {
         {filteredCharacters.map((char) => {
           // Construct portrait paths to try:
           // Because user can have profile.jpg or profile.jpeg
-          const path = window.location.pathname.toLowerCase();
-          const basePrefix = (path.includes('/b21') || path.includes('/mndl')) ? '../' : './';
+          const isGitHubPages = window.location.hostname.includes('github.io');
+          const basePrefix = isGitHubPages ? '/Class-of-2026-/' : '/';
           const imageUrl = `${basePrefix}characters/${char.id}/${char.portrait}`;
 
           return (
