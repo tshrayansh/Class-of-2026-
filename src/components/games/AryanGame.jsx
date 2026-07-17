@@ -26,6 +26,26 @@ export default function AryanGame({ onComplete }) {
     } catch (e) {}
   };
 
+  const playAllInSound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.4);
+      
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    } catch(e) {}
+  };
+
   const playVictorySound = () => {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -76,7 +96,6 @@ export default function AryanGame({ onComplete }) {
     ];
 
     if (aryanMode) {
-      // Modify community to complete Royal Flush (10, J, Q, K, A of hearts)
       return [
         { val: '10', suit: '♥', color: '#ff477e', stage: 'flop' },
         { val: 'J', suit: '♥', color: '#ff477e', stage: 'flop' },
@@ -99,6 +118,25 @@ export default function AryanGame({ onComplete }) {
       setTerminalLogs((prev) => [...prev, 'System: You folded. Aryan wins the current pot.']);
       setPhase('preflop');
       setPot(10);
+    } else if (type === 'allin') {
+      playAllInSound();
+      const allInBet = chips;
+      setChips(0);
+      setPot((prev) => prev + allInBet * 2);
+      setTerminalLogs((prev) => [
+        ...prev,
+        `System: YOU went ALL IN with ${allInBet} chips! Aryan calls.`,
+        'Dealer: Commencing immediate SHOWDOWN!'
+      ]);
+      setPhase('showdown');
+      
+      setTimeout(() => {
+        playVictorySound();
+        setTerminalLogs((prev) => [
+          ...prev,
+          aryanMode ? 'Aryan: "Royal Flush?! This is mathematically impossible!"' : 'Aryan: "Set of Jacks beats my pair of Queens. Nice hand."'
+        ]);
+      }, 500);
     } else {
       const bet = type === 'raise' ? 20 : 10;
       playBleep(520, 0.1);
@@ -257,6 +295,7 @@ export default function AryanGame({ onComplete }) {
             {phase === 'river' ? 'SHOWDOWN' : 'CALL'}
           </button>
           <button onClick={() => handleAction('raise')} className="btn-neo secondary" style={styles.btn}>RAISE</button>
+          <button onClick={() => handleAction('allin')} className="btn-neo accent" style={{ ...styles.btn, backgroundColor: '#ef476f', color: '#000' }}>ALL IN</button>
           <button onClick={askAryan} className="btn-neo accent" style={styles.btn}>
             <HelpCircle size={16} /> ASK ARYAN
           </button>
