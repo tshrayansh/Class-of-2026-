@@ -26,6 +26,25 @@ export default function AryanGame({ onComplete }) {
     } catch (e) {}
   };
 
+  const playVictorySound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime + idx * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.1 + 0.15);
+        osc.start(audioCtx.currentTime + idx * 0.1);
+        osc.stop(audioCtx.currentTime + idx * 0.1 + 0.18);
+      });
+    } catch(e) {}
+  };
+
   // Cards data definition
   const getPlayerHand = () => {
     if (aryanMode) {
@@ -70,7 +89,7 @@ export default function AryanGame({ onComplete }) {
     if (phase === 'preflop') return [];
     if (phase === 'flop') return cards.filter(c => c.stage === 'flop');
     if (phase === 'turn') return cards.filter(c => c.stage === 'flop' || c.stage === 'turn');
-    return cards; // river or showdown
+    return cards;
   };
 
   const handleAction = (type) => {
@@ -78,18 +97,15 @@ export default function AryanGame({ onComplete }) {
       playBleep(300, 0.15, 'triangle');
       setChips((prev) => Math.max(0, prev - 10));
       setTerminalLogs((prev) => [...prev, 'System: You folded. Aryan wins the current pot.']);
-      // Reset hand
       setPhase('preflop');
       setPot(10);
     } else {
-      // Call or Raise
       const bet = type === 'raise' ? 20 : 10;
       playBleep(520, 0.1);
       setChips((prev) => Math.max(0, prev - bet));
       setPot((prev) => prev + bet * 2);
       setTerminalLogs((prev) => [...prev, `System: You bet ${bet} chips. Aryan checks.`]);
 
-      // Progress phase
       setTimeout(() => {
         playBleep(650, 0.12);
         if (phase === 'preflop') {
@@ -103,6 +119,7 @@ export default function AryanGame({ onComplete }) {
           setTerminalLogs((prev) => [...prev, 'Dealer: Dealing the RIVER. Showdown is active!']);
         } else if (phase === 'river') {
           setPhase('showdown');
+          playVictorySound();
           setTerminalLogs((prev) => [...prev, aryanMode ? 'Aryan: "Royal Flush?! This is mathematically impossible!"' : 'Aryan: "Set of Jacks beats my pair of Queens. Nice hand."']);
         }
       }, 500);
@@ -139,7 +156,7 @@ export default function AryanGame({ onComplete }) {
       playBleep(400, 0.08);
       setTerminalLogs([]);
     } else if (command === 'sudo fix_everything') {
-      playBleep(700, 0.3, 'sawtooth');
+      playVictorySound();
       setAryanMode(true);
       setPhase('showdown');
       setTerminalLogs((prev) => [
@@ -209,6 +226,15 @@ export default function AryanGame({ onComplete }) {
             ))}
           </div>
         </div>
+
+        {/* Victory Splash Banner */}
+        {phase === 'showdown' && (
+          <div style={styles.winBanner} className="animate-shake">
+            <span style={{ fontSize: '2rem' }}>🪙</span>
+            <span style={styles.winBannerText}>YOU WON THE POT!</span>
+            <span style={{ fontSize: '2rem' }}>🪙</span>
+          </div>
+        )}
 
         {/* Player Cards rendering */}
         <div style={styles.playerCards}>
@@ -426,6 +452,27 @@ const styles = {
     fontSize: '1rem',
     fontWeight: 'bold',
   },
+  winBanner: {
+    position: 'absolute',
+    top: '40%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: '#000',
+    border: '3px solid #ffd166',
+    borderRadius: '12px',
+    padding: '10px 20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    zIndex: 10,
+    boxShadow: '0px 10px 20px rgba(0,0,0,0.5)',
+  },
+  winBannerText: {
+    fontFamily: "'Press Start 2P', monospace",
+    fontSize: '0.75rem',
+    color: '#ffd166',
+    fontWeight: 'bold',
+  },
   cardCorner: {
     fontSize: '0.7rem',
     fontWeight: 'bold',
@@ -480,7 +527,7 @@ const styles = {
     overflowY: 'auto',
   },
   calcLine: {
-    fontSize: '0.7rem',
+    fontSize: '0.75rem',
     marginBottom: '3px',
   },
   cli: {
@@ -496,7 +543,8 @@ const styles = {
   cliLogs: {
     overflowY: 'auto',
     flexGrow: 1,
-    fontSize: '0.65rem',
+    fontSize: '1rem',
+    fontFamily: "'VT323', monospace",
     color: '#39ff14',
     marginBottom: '2px',
   },
@@ -506,14 +554,14 @@ const styles = {
     borderTop: '1px solid #222',
     paddingTop: '2px',
     color: '#39ff14',
-    fontSize: '0.75rem',
+    fontSize: '1rem',
   },
   cliInput: {
     background: 'transparent',
     border: 'none',
     color: '#39ff14',
     fontFamily: "'VT323', monospace",
-    fontSize: '0.85rem',
+    fontSize: '1.05rem',
     outline: 'none',
     width: '90%',
   },

@@ -23,7 +23,7 @@ I hope you keep dancing and find exactly what you are looking for in the next ch
     portrait: 'Profile.jpg',
     stat: 'Active Tabs: 50',
     bio: 'Cute chechi energy, always working with 50 tabs open. Expert in biology, data science, and helping setup tech equipment.',
-    achievement: '50 Tabs Closed & Fish Bodyshamed 🧠',
+    achievement: '50 Tabs Closed & Research Done 🧠',
     memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'WhatsApp Image 2026-07-17 at 04.39.18 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.39.20.jpeg'],
     farewellMessage: `Dear Anagha,
 

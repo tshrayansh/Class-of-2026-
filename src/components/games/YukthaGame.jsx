@@ -6,8 +6,6 @@ export default function YukthaGame({ onComplete }) {
   const [yappingHistory, setYappingHistory] = useState([
     { speaker: 'Yuktha', text: 'Okay, listen! So yesterday in the lab, I was setting up the zebrafish crosses, right? But then, oh my god, did you see the lunch menu? They had these gulab jamuns...' }
   ]);
-  const [showPhotoChooser, setShowPhotoChooser] = useState(false);
-  const [photoPickCount, setPhotoPickCount] = useState(0);
 
   const playBleep = (pitch = 440) => {
     try {
@@ -19,9 +17,9 @@ export default function YukthaGame({ onComplete }) {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
       gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.1);
+      osc.stop(audioCtx.currentTime + 0.15);
     } catch (e) {}
   };
 
@@ -52,35 +50,42 @@ export default function YukthaGame({ onComplete }) {
     },
     // Step 3: Chef to zebrafish connection
     {
-      storyText: 'Nothing! But the chef had this really cool red apron, and I realized I need to post a photo on Instagram. I have these five photos from the event and I cannot decide which one looks better. Look at them, they look exactly identical!',
+      storyText: 'Nothing! But the chef had this really cool red apron, and I realized I need to post a photo on Instagram. I have five copies of the same photo and they look exactly identical, but I cannot decide which one looks better!',
       options: [
-        { text: 'Let me see the photos.', nextStep: 'photos', type: 'special' }
+        { text: '👉 "Yuktha, just post the first one. They look identical!"', nextStep: 6, type: 'focus' }
       ]
     },
     // Step 4: Movie plot tangent
     {
       storyText: 'Exactly! So in the second half, he meets this old friend, which reminded me of the genotyping protocol because they both had to solve a genetic mystery! It was so chaotic. Anyway, speaking of photos, I need to post one right now.',
       options: [
-        { text: 'Show me the photo options.', nextStep: 'photos', type: 'special' }
+        { text: '👉 "Post the first copy, it looks fine. Let\'s get back to genotyping!"', nextStep: 6, type: 'focus' }
       ]
     },
     // Step 5: Hollow Knight tangent
     {
       storyText: 'No, she didn\'t get mad, but she did steal my coffee! That reminded me of how I always try to learn Hindi and make you laugh. Let\'s check my photo options first though, I need to post them today.',
       options: [
-        { text: 'Alright, show me the photos.', nextStep: 'photos', type: 'special' }
+        { text: '👉 "Haha, no more Hindi lessons! Just upload the first photo already."', nextStep: 6, type: 'focus' }
+      ]
+    },
+    // Step 6: Resolution Node
+    {
+      storyText: 'Yuktha: "Okay, fine! I will post the first one. But wait, did I tell you about the other Malayalam movie? No? Haha, alright, I\'ll let you get back to your work. You are the best! Let\'s unlock my achievement!"',
+      options: [
+        { text: '🎉 CLAIM ACHIEVEMENT', nextStep: 'complete', type: 'special' }
       ]
     }
   ];
 
   const handleOptionClick = (option) => {
-    playBleep(option.type === 'focus' ? 440 : 550);
-
-    if (option.nextStep === 'photos') {
-      setShowPhotoChooser(true);
+    if (option.nextStep === 'complete') {
+      playBleep(880);
+      onComplete();
       return;
     }
 
+    playBleep(option.type === 'focus' ? 440 : 550);
     const nextIdx = option.nextStep;
     const nextStory = dialogueTree[nextIdx];
 
@@ -90,29 +95,6 @@ export default function YukthaGame({ onComplete }) {
       { speaker: 'Yuktha', text: nextStory.storyText }
     ]);
     setStep(nextIdx);
-  };
-
-  const handlePhotoSelect = (idx) => {
-    setPhotoPickCount((prev) => prev + 1);
-
-    if (photoPickCount === 0) {
-      playBleep(350);
-      setYappingHistory((prev) => [
-        ...prev,
-        { speaker: 'You', text: `Choose Photo #${idx}` },
-        { speaker: 'Yuktha', text: `Hmm... but don't you think Photo #${idx === 1 ? 2 : 1} is slightly better? The angle is different! Look closely!` }
-      ]);
-    } else if (photoPickCount === 1) {
-      playBleep(523);
-      setYappingHistory((prev) => [
-        ...prev,
-        { speaker: 'You', text: `Okay, let's go with that one.` },
-        { speaker: 'Yuktha', text: `Wait, but what about Photo #3? The lighting is so cute! Actually, let me ask three more people... Ah, whatever, you are the best! Let's unlock my achievement!` }
-      ]);
-    } else {
-      playBleep(880);
-      onComplete();
-    }
   };
 
   const currentStoryState = dialogueTree[step];
@@ -135,43 +117,19 @@ export default function YukthaGame({ onComplete }) {
           ))}
         </div>
 
-        {/* Photo Chooser Special State */}
-        {showPhotoChooser ? (
-          <div style={styles.photoContainer}>
-            <h3 style={styles.photoTitle} className="text-retro">WHICH ONE SHOULD I POST?</h3>
-            <div style={styles.photoGrid}>
-              {[1, 2, 3, 4, 5].map((idx) => (
-                <div key={idx} onClick={() => handlePhotoSelect(idx)} style={styles.photoCard}>
-                  <div style={styles.photoThumb}>
-                    <Camera size={24} color="#555" />
-                    <span style={styles.thumbText}>Option #{idx}</span>
-                  </div>
-                  <button className="btn-neo" style={styles.selectBtn}>SELECT</button>
-                </div>
-              ))}
-            </div>
-            {photoPickCount >= 2 && (
-              <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.winBtn}>
-                CLAIM ACHIEVEMENT
-              </button>
-            )}
-          </div>
-        ) : (
-          /* Normal Branching Options */
-          <div style={styles.optionsBox}>
-            {currentStoryState.options.map((opt, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleOptionClick(opt)}
-                className={`btn-neo ${opt.type === 'focus' ? 'secondary' : 'accent'}`}
-                style={styles.optBtn}
-              >
-                {opt.type === 'focus' ? <Coffee size={16} /> : <Film size={16} />}
-                {opt.text}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Branching Options */}
+        <div style={styles.optionsBox}>
+          {currentStoryState.options.map((opt, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleOptionClick(opt)}
+              className={`btn-neo ${opt.type === 'focus' ? 'secondary' : 'accent'}`}
+              style={styles.optBtn}
+            >
+              {opt.text}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -197,17 +155,17 @@ const styles = {
     marginBottom: '15px',
   },
   hudTitle: {
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     color: '#ff477e',
     margin: 0,
   },
   badge: {
     backgroundColor: '#ff477e',
     color: '#000',
-    padding: '3px 10px',
+    padding: '4px 12px',
     borderRadius: '4px',
     fontWeight: 'bold',
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     border: '2px solid #000',
   },
   consoleBody: {
@@ -216,22 +174,22 @@ const styles = {
     gap: '20px',
   },
   dialogueScroll: {
-    maxHeight: '260px',
+    height: '280px',
     overflowY: 'auto',
     backgroundColor: '#0f0f12',
-    border: '2px solid #000',
+    border: '2.5px solid #000',
     borderRadius: '8px',
-    padding: '12px',
+    padding: '15px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: '14px',
   },
   bubbleYuktha: {
     alignSelf: 'flex-start',
     backgroundColor: '#23232f',
     border: '2px solid #3b3b4f',
     borderRadius: '12px 12px 12px 0px',
-    padding: '10px 14px',
+    padding: '12px 16px',
     maxWidth: '85%',
     textAlign: 'left',
   },
@@ -241,90 +199,34 @@ const styles = {
     color: '#000',
     border: '2px solid #000',
     borderRadius: '12px 12px 0px 12px',
-    padding: '10px 14px',
+    padding: '12px 16px',
     maxWidth: '85%',
     textAlign: 'left',
     marginLeft: 'auto',
   },
   speakerName: {
     display: 'block',
-    fontSize: '0.8rem',
+    fontSize: '0.85rem',
     textTransform: 'uppercase',
-    marginBottom: '2px',
-    opacity: 0.8,
+    marginBottom: '3px',
+    opacity: 0.9,
+    fontFamily: "'VT323', monospace",
   },
   bubbleText: {
     margin: 0,
-    fontSize: '0.95rem',
-    lineHeight: '1.4',
+    fontSize: '1.05rem',
+    lineHeight: '1.45',
   },
   optionsBox: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '12px',
   },
   optBtn: {
     width: '100%',
     textAlign: 'left',
     justifyContent: 'flex-start',
-    fontSize: '0.95rem',
-  },
-  photoContainer: {
-    borderTop: '2px dashed #444',
-    paddingTop: '15px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  photoTitle: {
-    color: '#ffd166',
-    fontSize: '1rem',
-    marginBottom: '15px',
-  },
-  photoGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-    gap: '10px',
-    width: '100%',
-    marginBottom: '20px',
-  },
-  photoCard: {
-    backgroundColor: '#2a2a35',
-    border: '2px solid #000',
-    borderRadius: '8px',
-    padding: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'transform 0.1s ease',
-  },
-  photoThumb: {
-    width: '100%',
-    height: '70px',
-    backgroundColor: '#fff',
-    borderRadius: '4px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#000',
-    marginBottom: '8px',
-  },
-  thumbText: {
-    fontSize: '0.65rem',
-    fontWeight: 'bold',
-    marginTop: '2px',
-  },
-  selectBtn: {
-    fontSize: '0.65rem',
-    padding: '3px 8px',
-    boxShadow: '2px 2px 0px #000',
-    borderWidth: '1.5px',
-    transform: 'none',
-  },
-  winBtn: {
-    marginTop: '10px',
-    width: '100%',
+    fontSize: '1.05rem',
+    padding: '10px 15px',
   },
 };
