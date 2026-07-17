@@ -5,14 +5,6 @@ export default function PolaroidMemories({ character, onPlayAgain, onBackToSelec
   const containerRef = useRef(null);
   const [polaroids, setPolaroids] = useState([]);
 
-  // Default doodle names for fallback
-  const fallbackDoodles = [
-    'Zebrafish Lab Shenanigans 🐟',
-    'Canteen Late Night Food Hunt 🍽️',
-    'Diwali Garba Night 💃',
-    'Late Night Exam Cram ☕',
-  ];
-
   // Initialize scattered polaroids
   useEffect(() => {
     if (character && character.memories) {
@@ -24,7 +16,6 @@ export default function PolaroidMemories({ character, onPlayAgain, onBackToSelec
         return {
           id: index,
           filename,
-          title: fallbackDoodles[index % fallbackDoodles.length],
           x,
           y,
           rotation: rot,
@@ -114,7 +105,7 @@ export default function PolaroidMemories({ character, onPlayAgain, onBackToSelec
             >
               <img
                 src={imageUrl}
-                alt={p.title}
+                alt="Memory Photo"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
