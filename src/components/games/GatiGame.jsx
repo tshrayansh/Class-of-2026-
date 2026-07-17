@@ -49,7 +49,24 @@ export default function GatiGame({ onComplete }) {
     } catch(e) {}
   };
 
+  const playBleep = (pitch = 440, duration = 0.08) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  };
+
   const handleDismiss = () => {
+    playBleep(550, 0.08);
     setActivePopup(null);
   };
 

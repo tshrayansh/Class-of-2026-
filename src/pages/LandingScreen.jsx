@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Terminal, Play } from 'lucide-react';
 
-export default function LandingScreen({ onStart }) {
+export default function LandingScreen({ onStart, initAudio }) {
   const [logs, setLogs] = useState([]);
   const [bootComplete, setBootComplete] = useState(false);
 
   const bootLogs = [
-    'Initializing MNDL-OS v2026.07...',
-    'Scanning zebrafish research facility...',
-    'Loading academic advice databases...',
-    'Warning: 8 players are about to disconnect from server.',
-    'Establishing MP-Bhopal connection...',
-    'Importing Erode snacks cache...',
-    'Vegetarian alliance status: ACTIVE.',
-    'Argentina supporter flags: DETECTED.',
+    'Initializing MNDL-OS v2.0...',
+    'Scanning databases...',
+    'Loading game files...',
+    'Establishing secure connection...',
+    'Checking active players...',
+    'Class of 2026 disconnect warning: ACTIVE.',
     'System ready.'
   ];
 
@@ -27,7 +25,7 @@ export default function LandingScreen({ onStart }) {
         clearInterval(interval);
         setTimeout(() => setBootComplete(true), 600);
       }
-    }, 250);
+    }, 200);
 
     return () => clearInterval(interval);
   }, []);
@@ -36,28 +34,26 @@ export default function LandingScreen({ onStart }) {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       
-      // Node 1: Synth beep
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, audioCtx.currentTime); // start at 300Hz
-      osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.35); // sweep up
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.35);
       
       gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
       
       osc.start();
       osc.stop(audioCtx.currentTime + 0.35);
-    } catch (e) {
-      console.log('AudioContext not allowed or not supported yet');
-    }
+    } catch (e) {}
   };
 
   const handleStart = () => {
     playStartSound();
+    if (initAudio) initAudio();
     onStart();
   };
 
@@ -97,7 +93,7 @@ export default function LandingScreen({ onStart }) {
       {bootComplete && (
         <div style={styles.contentBox}>
           <h1 className="glitch-text text-retro" style={styles.heading}>
-            8 PLAYERS ARE ABOUT TO LEAVE THE SERVER.
+            CLASS OF 2026 IS ABOUT TO LEAVE THE SERVER.
           </h1>
           <p className="text-mono" style={styles.subtitle}>
             Before they log out, there's one last game to play.
@@ -178,7 +174,7 @@ const styles = {
     fontSize: '1.5rem',
     color: '#00ff66',
     padding: '15px',
-    minHeight: '180px',
+    minHeight: '150px',
   },
   logLine: {
     marginBottom: '4px',
@@ -199,7 +195,7 @@ const styles = {
     animation: 'fadeIn 0.5s ease forwards',
   },
   heading: {
-    fontSize: '2.2rem',
+    fontSize: '2rem',
     color: '#ffd166',
     margin: '0 0 15px 0',
     letterSpacing: '-1px',
@@ -207,11 +203,11 @@ const styles = {
   },
   subtitle: {
     color: '#fff',
-    fontSize: '1.6rem',
+    fontSize: '1.5rem',
     margin: '0 0 25px 0',
   },
   startButton: {
-    fontSize: '1.3rem',
-    padding: '14px 28px',
+    fontSize: '1.2rem',
+    padding: '12px 24px',
   },
 };

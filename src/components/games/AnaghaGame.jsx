@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Terminal, Laptop, Coffee } from 'lucide-react';
+import { ShieldAlert, Laptop, Coffee } from 'lucide-react';
 
 export default function AnaghaGame({ onComplete }) {
   const [tasks, setTasks] = useState([
-    { id: 1, title: 'Analyze Zebrafish Data', x: 20, y: 40 },
-    { id: 2, title: 'Fix Lab Centrifuge', x: 120, y: 100 },
+    { id: 1, title: 'Write Data Science Script', x: 20, y: 40 },
+    { id: 2, title: 'Genotyping Checklist', x: 120, y: 100 },
   ]);
   const [resolvedCount, setResolvedCount] = useState(0);
   const [cpuTemp, setCpuTemp] = useState(45);
   const [message, setMessage] = useState('');
+
+  const playBleep = (pitch = 500) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {}
+  };
 
   // Spawn work tasks over time
   useEffect(() => {
@@ -16,30 +32,30 @@ export default function AnaghaGame({ onComplete }) {
       if (resolvedCount < 10) {
         spawnTask();
       }
-    }, 2000);
+    }, 1800);
 
     return () => clearInterval(timer);
   }, [resolvedCount]);
 
   // Adjust CPU temp based on active tasks
   useEffect(() => {
-    setCpuTemp(40 + tasks.length * 10);
+    setCpuTemp(40 + tasks.length * 12);
   }, [tasks]);
 
   const spawnTask = (customTitle = null) => {
     const taskTitles = [
       'Write Data Science Script',
-      'Torment Sleep Deprived Fish',
-      'Help Colleague Set Up Microscope',
-      'Read 12 BioRxiv Papers',
-      'Annotate Fish Trajectories',
-      'Burial Ceremony for Fish #42',
-      'Bodyshaming Fatty Fish'
+      'Track Zebrafish Embryos',
+      'Calibrate Microscope setup',
+      'Read BioRxiv papers',
+      'Analyze behavior data',
+      'Fix centrifuge speed',
+      'Debug analysis script'
     ];
 
     const randomTitle = customTitle || taskTitles[Math.floor(Math.random() * taskTitles.length)];
-    const rx = Math.floor(Math.random() * 220) + 10;
-    const ry = Math.floor(Math.random() * 180) + 30;
+    const rx = Math.floor(Math.random() * 200) + 10;
+    const ry = Math.floor(Math.random() * 160) + 30;
 
     setTasks((prev) => [
       ...prev,
@@ -48,18 +64,20 @@ export default function AnaghaGame({ onComplete }) {
   };
 
   const handleResolve = (id) => {
+    playBleep(600);
     setTasks((prev) => prev.filter((t) => t.id !== id));
     setResolvedCount((prev) => prev + 1);
   };
 
   const handleSelfCare = (type) => {
+    playBleep(300);
     setMessage(`MAYBE LATER. Too busy working!`);
-    setTimeout(() => setMessage(''), 2000);
+    setTimeout(() => setMessage(''), 1500);
 
     // Trap! Spawns 3 more tasks instantly
     spawnTask(`Analyse ${type} Data`);
-    spawnTask(`Repair ${type} Setup`);
-    spawnTask(`Urgent Lab Call`);
+    spawnTask(`Check ${type} System`);
+    spawnTask(`Urgent Lab Request`);
   };
 
   return (
@@ -77,7 +95,6 @@ export default function AnaghaGame({ onComplete }) {
 
       {/* OS Desktop Screen */}
       <div className="desktop-container" style={styles.desktop}>
-        {/* Helper Instructions */}
         <div style={styles.bgWallpaper}>
           <Laptop size={70} opacity={0.1} />
           <p style={styles.bgText}>ANAGHA-OS v1.0</p>
@@ -138,7 +155,7 @@ export default function AnaghaGame({ onComplete }) {
       {resolvedCount >= 10 && (
         <div style={styles.winBox}>
           <p style={styles.winText}>Somehow, Anagha manages everything! CPU is cooling down.</p>
-          <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
+          <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
             CLAIM ACHIEVEMENT
           </button>
         </div>

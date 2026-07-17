@@ -8,16 +8,84 @@ import './styles/games.css';
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing' | 'select' | 'game'
   const [selectedChar, setSelectedChar] = useState(null);
-  const [bgmActive, setBgmActive] = useState(false);
+  const [bgmActive, setBgmActive] = useState(true); // default BGM on
   const [audioCtx, setAudioCtx] = useState(null);
   const [intervalId, setIntervalId] = useState(null);
+
+  // Catchy NES step sequencer
+  const startSequencer = (ctx) => {
+    // 16-step melody loop (mellow chiptune theme)
+    const melody = [
+      261.63, 329.63, 392.00, 523.25, 440.00, 349.23, 392.00, 493.88,
+      329.63, 392.00, 523.25, 659.25, 587.33, 493.88, 523.25, 0
+    ];
+
+    let step = 0;
+    const id = setInterval(() => {
+      try {
+        if (ctx.state === 'suspended') return; // wait for user interaction to resume
+
+        const note = melody[step % melody.length];
+        if (note > 0) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.type = 'triangle'; // Mellow retro sound
+          osc.frequency.setValueAtTime(note, ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.015, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.16);
+
+          osc.start();
+          osc.stop(ctx.currentTime + 0.18);
+        }
+
+        // Bassline every 2 steps
+        if (step % 2 === 0) {
+          const bassProgress = [130.81, 110.00, 87.31, 98.00]; // C3 -> A2 -> F2 -> G2
+          const bassFreq = bassProgress[Math.floor(step / 4) % bassProgress.length];
+
+          const bassOsc = ctx.createOscillator();
+          const bassGain = ctx.createGain();
+          bassOsc.connect(bassGain);
+          bassGain.connect(ctx.destination);
+
+          bassOsc.type = 'sine';
+          bassOsc.frequency.setValueAtTime(bassFreq, ctx.currentTime);
+
+          bassGain.gain.setValueAtTime(0.02, ctx.currentTime);
+          bassGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32);
+
+          bassOsc.start();
+          bassOsc.stop(ctx.currentTime + 0.35);
+        }
+
+        step++;
+      } catch (err) {}
+    }, 180); // 180ms per step = catchy pacing!
+
+    return id;
+  };
+
+  // Resume or start audio context
+  const initAudio = () => {
+    let ctx = audioCtx;
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      setAudioCtx(ctx);
+    }
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    return ctx;
+  };
 
   // Global click feedback sound
   const playClick = () => {
     try {
-      const ctx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      if (!audioCtx) setAudioCtx(ctx);
-
+      const ctx = initAudio();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -35,6 +103,20 @@ export default function App() {
     } catch (e) {}
   };
 
+  // Initialize BGM on mount
+  useEffect(() => {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    setAudioCtx(ctx);
+
+    const id = startSequencer(ctx);
+    setIntervalId(id);
+
+    return () => {
+      clearInterval(id);
+      ctx.close();
+    };
+  }, []);
+
   const toggleBgm = () => {
     playClick();
 
@@ -45,55 +127,20 @@ export default function App() {
       }
       setBgmActive(false);
     } else {
-      const ctx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      if (!audioCtx) setAudioCtx(ctx);
-
-      // Play soft arpeggiated progression: C -> Am -> F -> G
-      const scale = [
-        130.81, 164.81, 196.00, // C3, E3, G3
-        110.00, 130.81, 164.81, // A2, C3, E3
-        87.31, 130.81, 174.61,  // F2, C3, F3
-        98.00, 146.83, 196.00   // G2, D3, G3
-      ];
-
-      let step = 0;
-      const id = setInterval(() => {
-        try {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-
-          osc.type = 'triangle'; // Soft and cozy
-
-          // Determine current note in the chord progression arpeggio
-          const chordIndex = Math.floor(step / 3) % 4;
-          const noteIndex = (step % 3) + chordIndex * 3;
-          const freq = scale[noteIndex];
-
-          osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-          // Keep BGM volume very quiet
-          gain.gain.setValueAtTime(0.012, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1);
-
-          osc.start();
-          osc.stop(ctx.currentTime + 1.2);
-
-          step++;
-        } catch (err) {}
-      }, 700); // 700ms beats
-
+      const ctx = initAudio();
+      const id = startSequencer(ctx);
       setIntervalId(id);
       setBgmActive(true);
     }
   };
 
   const handleStart = () => {
+    initAudio();
     setView('select');
   };
 
   const handleSelectCharacter = (character) => {
+    initAudio();
     setSelectedChar(character);
     setView('game');
   };
@@ -103,13 +150,6 @@ export default function App() {
     setSelectedChar(null);
     setView('select');
   };
-
-  // Clean up audio on unmount
-  useEffect(() => {
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [intervalId]);
 
   return (
     <div className="game-layout">
@@ -123,7 +163,7 @@ export default function App() {
       </div>
 
       {view === 'landing' && (
-        <LandingScreen onStart={handleStart} />
+        <LandingScreen onStart={handleStart} initAudio={initAudio} />
       )}
 
       {view === 'select' && (
@@ -134,6 +174,7 @@ export default function App() {
         <GameContainer
           character={selectedChar}
           onBackToSelect={handleBackToSelect}
+          initAudio={initAudio}
         />
       )}
     </div>

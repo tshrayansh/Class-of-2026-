@@ -7,54 +7,106 @@ export default function SamGame({ onComplete }) {
   const [samWater, setSamWater] = useState(100);
   const [samHappiness, setSamHappiness] = useState(50);
   const [isPouring, setIsPouring] = useState(false);
-  const [logs, setLogs] = useState(['You are playing Mafia with Sam Akka. She is currently making a very convincing speech.']);
-  const [step, setStep] = useState(0);
+  const [logs, setLogs] = useState(['You sit opposite Sam Akka at the Mafia table. She is defending herself.']);
+  const [round, setRound] = useState(0); // 0, 1, 2, 3 (showdown)
+
+  const playBleep = (pitch = 440, duration = 0.08, type = 'sine') => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  };
 
   const addLog = (msg) => {
     setLogs((prev) => [msg, ...prev]);
   };
 
-  const gaslightPrompts = [
+  // Interrogation dialogue data
+  const mafiaRounds = [
     {
-      claim: "You were seen near the victim's house last night, Sam!",
-      response: 'Sam: "If I were the Mafia, do you really think I\'d leave obvious clues? I was in my room playing Hollow Knight and eating chapati with raita. Your logic makes no sense."',
-      confidenceDrop: 25
+      claim: 'Sam: "I was in my room playing Hollow Knight and eating chapati with raita. I wasn\'t anywhere near the crime scene!"',
+      options: [
+        {
+          text: '👉 Accuse food combo: "Raita with chapati is unhinged. You are guilty!"',
+          logMsg: 'You: "Raita with chapati is a crime in itself. You must be guilty!"',
+          reply: 'Sam: "Raita goes with everything, Shrayansh! Also, you have no evidence. Expected utility of your accusation: Zero."',
+          confidenceDrop: 25
+        },
+        {
+          text: '👉 Expose timeline: "You usually go downstairs at night for Red Cafe orders. Explain that!"',
+          logMsg: 'You: "We know you slip downstairs to collect Red Cafe orders at midnight. Did anyone verify your timeline?"',
+          reply: 'Sam: "I was eating noodles with raita in my room. Ask SnT, they saw me online. Try again."',
+          confidenceDrop: 30
+        }
+      ]
     },
     {
-      claim: "Your arguments are too defensive. You must be Mafia!",
-      response: 'Sam: "Defensive? I literally run SnT and Mazhavil. Why would I sabotage the server? You are reaching to cover your own tracks."',
-      confidenceDrop: 30
+      claim: 'Sam: "I run Mazhavil and QSI. Why would I sabotage the server? It would destroy my own work!"',
+      options: [
+        {
+          text: '👉 Point to puzzles: "You love brain teasers. Sabotaging the server is the ultimate puzzle for you!"',
+          logMsg: 'You: "You are a master of games and puzzles. Sabotaging is just another teaser for you!"',
+          reply: 'Sam: "Puzzles have logical endings. This accusation is just messy. Your confidence is slipping."',
+          confidenceDrop: 25
+        },
+        {
+          text: '👉 Point to card manipulation: "You manipulate the hell out of us in board games. You are doing it now!"',
+          logMsg: 'You: "You are a Mafia legend. You gaslight us in card games, and you are gaslighting me now!"',
+          reply: 'Sam: "Gaslighting? That\'s just game theory! Look at my earrings—do they look like the earrings of a killer?"',
+          confidenceDrop: 35
+        }
+      ]
     },
     {
-      claim: "You manipulated the vote in round 1!",
-      response: 'Sam: "I guided the town! Look at my earrings—do these look like the earrings of a cold-blooded killer? You are clearly trying to frame me."',
-      confidenceDrop: 42
+      claim: 'Sam: "I am innocent town. If you vote me out, the town loses the game. Let\'s vote Niranjan instead."',
+      options: [
+        {
+          text: '👉 Hold firm: "I don\'t care about the earrings or the rants. I am voting you out!"',
+          logMsg: 'You: "I am locking in my vote on you, Sam!"',
+          reply: 'Sam: "Then you just handed the win to the Mafia. Good job, detective!"',
+          confidenceDrop: 40
+        },
+        {
+          text: '👉 Check vote logic: "Why vote Niranjan? You are trying to deflect!"',
+          logMsg: 'You: " Deflecting to Niranjan is a classic Mafia tell!"',
+          reply: 'Sam: "Niranjan pacing in his Crocs is way more suspicious than me eating raita!"',
+          confidenceDrop: 35
+        }
+      ]
     }
   ];
 
-  const handleInterrogate = () => {
-    if (step >= gaslightPrompts.length) {
-      addLog('Sam: "You have no arguments left. Admit it, I am innocent town."');
-      return;
-    }
+  const handleChooseOption = (opt) => {
+    playBleep(520, 0.08);
+    addLog(opt.logMsg);
 
-    const currentPrompt = gaslightPrompts[step];
-    addLog(`You: "${currentPrompt.claim}"`);
     setTimeout(() => {
-      addLog(currentPrompt.response);
-      setConfidence((prev) => Math.max(3, prev - currentPrompt.confidenceDrop));
-      setStep((prev) => prev + 1);
+      playBleep(350, 0.12, 'triangle');
+      addLog(opt.reply);
+      setConfidence((prev) => Math.max(3, prev - opt.confidenceDrop));
+      setRound((prev) => prev + 1);
     }, 600);
   };
 
   const handleStealWater = () => {
     if (isPouring) return;
     if (samWater <= 10) {
-      addLog('Sam\'s water bottle is empty! You need to bring your own bottle next time.');
+      playBleep(280, 0.1);
+      addLog('Sam\'s water bottle is empty!');
       return;
     }
 
     setIsPouring(true);
+    playBleep(300, 0.08);
     addLog('You steal water from Sam\'s bottle because you forgot yours again.');
     
     // Slurp sound
@@ -73,26 +125,23 @@ export default function SamGame({ onComplete }) {
       osc.stop(audioCtx.currentTime + 0.15);
     } catch(e) {}
 
-    // Complete pouring after 1 second
     setTimeout(() => {
       setIsPouring(false);
       setSamWater((prev) => Math.max(10, prev - 30));
       setHydration((prev) => Math.min(100, prev + 30));
-      setSamHappiness((prev) => prev + 10);
-      addLog('Sam: "Shrayansh, seriously? Buy a water bottle! Fine, I will let it slide if you vote for Niranjan with me."');
+      setSamHappiness((prev) => prev + 15);
+      addLog('Sam: "Seriously, Shrayansh? Go buy a water bottle! I\'ll let it pass if you check Niranjan next round."');
     }, 1000);
   };
 
   const handleErodeSnacks = () => {
+    playBleep(580, 0.08);
     setSamHappiness((prev) => prev + 25);
-    addLog('Erode Snacks: Sam shares banana chips from Erode. Tasty!');
+    addLog('Erode Snacks: You eat banana chips from Erode. Sam smiles.');
   };
 
-  const handleTease = () => {
-    setSamHappiness((prev) => prev + 40);
-    setConfidence((prev) => Math.max(3, prev - 10));
-    addLog('Sam: "You think you can solve this quiz? You forgot the basic Hollow Knight lore!"');
-  };
+  const currentRoundData = mafiaRounds[round];
+  const isShowdown = round >= 3 || confidence <= 3;
 
   return (
     <div style={styles.container}>
@@ -131,6 +180,9 @@ export default function SamGame({ onComplete }) {
           <div style={styles.suspectCard} className="animate-shake">
             <span style={styles.samAvatar}>🎭</span>
             <span style={styles.samTitle}>SAM</span>
+            <p style={styles.speechText}>
+              {!isShowdown ? currentRoundData.claim : '"I rest my case. Vote now."'}
+            </p>
           </div>
 
           {/* Interactive Water Bottle Container */}
@@ -141,13 +193,9 @@ export default function SamGame({ onComplete }) {
                 transform: isPouring ? 'rotate(-95deg) translate(-5px, -15px)' : 'rotate(0deg)',
                 overflow: 'visible',
               }}>
-                {/* Cap */}
                 <rect x="11" y="2" width="13" height="6" rx="1.5" fill="#4b5563" stroke="#000" strokeWidth="2" />
-                {/* Neck */}
                 <rect x="13" y="8" width="9" height="5" fill="#6b7280" stroke="#000" strokeWidth="2" />
-                {/* Bottle Body */}
                 <rect x="4" y="13" width="27" height="64" rx="5" fill="rgba(173, 216, 230, 0.35)" stroke="#000" strokeWidth="2" />
-                {/* Fluid inside bottle */}
                 <rect x="6" y={15 + (60 - samWater * 0.6)} width="23" height={samWater * 0.6} rx="3" fill="#00b4d8" opacity="0.8" style={{ transition: 'y 0.5s ease, height 0.5s ease' }} />
               </svg>
               {isPouring && (
@@ -167,25 +215,27 @@ export default function SamGame({ onComplete }) {
 
         {/* Dashboard Actions */}
         <div style={styles.actionsGrid}>
-          <button
-            onClick={handleInterrogate}
-            disabled={step >= gaslightPrompts.length}
-            className={`btn-neo ${step >= gaslightPrompts.length ? 'disabled' : 'secondary'}`}
-            style={styles.actionBtn}
-          >
-            🔍 Claim #{step + 1}
-          </button>
+          {!isShowdown ? (
+            currentRoundData.options.map((opt, i) => (
+              <button
+                key={i}
+                onClick={() => handleChooseOption(opt)}
+                className="btn-neo secondary"
+                style={styles.actionBtn}
+              >
+                {opt.text}
+              </button>
+            ))
+          ) : (
+            <div style={styles.showdownLabel} className="text-retro">SHOWDOWN PHASE</div>
+          )}
           
           <button onClick={handleStealWater} className="btn-neo secondary" style={styles.actionBtn}>
-            <Droplet size={14} /> Steal Sam's Water
+            💧 Steal Sam\'s Water
           </button>
 
           <button onClick={handleErodeSnacks} className="btn-neo secondary" style={styles.actionBtn}>
             🍌 Share Erode Snacks
-          </button>
-
-          <button onClick={handleTease} className="btn-neo secondary" style={styles.actionBtn}>
-            🗣️ Request Friendly Teasing
           </button>
         </div>
 
@@ -199,12 +249,12 @@ export default function SamGame({ onComplete }) {
         </div>
       </div>
 
-      {confidence <= 3 && (
+      {isShowdown && (
         <div style={styles.winBox}>
           <p style={styles.winText}>
-            You accuse Sam. She smiles, vote-kicks you, and tells you to bring your own water next time.
+            You locks in your accusation. Sam smiles, vote-kicks you from the server, and tells you to buy your own water bottle next semester.
           </p>
-          <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
+          <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
             CLAIM ACHIEVEMENT
           </button>
         </div>
@@ -286,7 +336,7 @@ const styles = {
     alignItems: 'center',
     margin: '10px 0',
     backgroundColor: '#262323',
-    padding: '15px',
+    padding: '12px',
     borderRadius: '8px',
     border: '2px solid #000',
   },
@@ -294,14 +344,15 @@ const styles = {
     backgroundColor: '#2d1e2f',
     border: '3.5px solid #ff477e',
     borderRadius: '12px',
-    padding: '15px 25px',
+    padding: '12px 15px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '4px',
+    width: '60%',
   },
   samAvatar: {
-    fontSize: '2.5rem',
+    fontSize: '2rem',
   },
   samTitle: {
     fontFamily: "'Press Start 2P', monospace",
@@ -309,10 +360,17 @@ const styles = {
     color: '#ff477e',
     fontWeight: 'bold',
   },
+  speechText: {
+    fontSize: '0.85rem',
+    margin: '6px 0 0 0',
+    lineHeight: '1.3',
+    color: '#e5e7eb',
+    fontStyle: 'italic',
+  },
   bottleContainer: {
     display: 'flex',
     alignItems: 'flex-end',
-    gap: '20px',
+    gap: '15px',
     position: 'relative',
   },
   bottlePosition: {
@@ -322,7 +380,7 @@ const styles = {
   dripLine: {
     position: 'absolute',
     top: '5px',
-    left: '-20px',
+    left: '-15px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -336,7 +394,7 @@ const styles = {
   },
   cupText: {
     fontFamily: "'VT323', monospace",
-    fontSize: '1.2rem',
+    fontSize: '1.1rem',
     color: '#00b4d8',
   },
   actionsGrid: {
@@ -355,12 +413,21 @@ const styles = {
     textAlign: 'left',
     justifyContent: 'flex-start',
   },
+  showdownLabel: {
+    gridColumn: '1 / -1',
+    backgroundColor: '#3b0712',
+    color: '#ef476f',
+    padding: '8px',
+    border: '2px solid #000',
+    borderRadius: '4px',
+    fontSize: '0.75rem',
+  },
   logBox: {
     backgroundColor: '#0c0a0a',
     border: '2.5px solid #000',
     borderRadius: '8px',
     padding: '12px',
-    height: '130px',
+    height: '120px',
     overflowY: 'auto',
     textAlign: 'left',
     fontFamily: "'VT323', monospace",

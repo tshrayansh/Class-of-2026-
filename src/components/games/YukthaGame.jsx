@@ -4,69 +4,78 @@ import { Camera, Coffee, Film, Heart } from 'lucide-react';
 export default function YukthaGame({ onComplete }) {
   const [step, setStep] = useState(0);
   const [yappingHistory, setYappingHistory] = useState([
-    { speaker: 'Yuktha', text: 'Hey! So, let me tell you about this crazy thing that happened today in the lab... I was walking in, ready to inspect the fish...' }
+    { speaker: 'Yuktha', text: 'Okay, listen! So yesterday in the lab, I was setting up the zebrafish crosses, right? But then, oh my god, did you see the lunch menu? They had these gulab jamuns...' }
   ]);
   const [showPhotoChooser, setShowPhotoChooser] = useState(false);
   const [photoPickCount, setPhotoPickCount] = useState(0);
 
+  const playBleep = (pitch = 440) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    } catch (e) {}
+  };
+
   const dialogueTree = [
-    // Step 0 options
+    // Step 0: Initial
     {
-      storyText: 'Okay, so I was looking at the fish tanks. But then, wait, did I tell you about the movie I watched yesterday? Oh my god, it was a 3-hour Malayalam movie and...',
+      storyText: 'Anyway, back to the fish. I went to collect the embryos, but I saw a stray biscuit on the desk. You know me, my sugar radar went off immediately! I just had to check if it was edible...',
       options: [
-        { text: 'Wait, what happened in the lab?', nextStep: 1, type: 'focus' },
-        { text: 'Oh! Tell me the movie plot!', nextStep: 2, type: 'distraction' },
+        { text: 'Yuktha, focus! Did you get the embryos?', nextStep: 1, type: 'focus' },
+        { text: 'Wait, did you actually eat the desk biscuit?', nextStep: 2, type: 'distraction' },
       ]
     },
-    // Step 1: Lab focus route
+    // Step 1: Embryos focus
     {
-      storyText: 'Right! The lab! So I was checking the fish, and I saw a plate of laddoos on the table. You know me, my golden-retriever radar detected sugar instantly! I just had to check it out...',
+      storyText: 'Yes, of course! But as I was labeling the petri dishes, I remembered the plot of the Malayalam movie I watched. It was about this chef who opens a restaurant in Kerala, and the cinematography was so beautiful! It had these long panning shots of the backwaters...',
       options: [
-        { text: 'Yuktha, did you eat them all?', nextStep: 3, type: 'focus' },
-        { text: 'Laddoos? Let\'s go eat!', nextStep: 4, type: 'distraction' },
+        { text: 'What does this chef have to do with the zebrafish?', nextStep: 3, type: 'focus' },
+        { text: 'Oh, tell me the entire movie plot!', nextStep: 4, type: 'distraction' },
       ]
     },
-    // Step 2: Movie distraction route
+    // Step 2: Desk biscuit distraction
     {
-      storyText: 'So the movie is about this chef who falls in love with a curly-haired girl, and there are these emotional songs, and the choreography was so beautiful, which reminds me, I need to hunt for a dress for next week\'s event!',
+      storyText: 'Maybe! The security guards usually leave sweets for me anyway because they know I love them. But while I was searching for the biscuit owner, I accidentally ambushed Sam Akka and started a yapping session about Hollow Knight!',
       options: [
-        { text: 'Yuktha, focus! What about the lab?', nextStep: 1, type: 'focus' },
-        { text: 'A dress? What color are you looking for?', nextStep: 5, type: 'distraction' },
+        { text: 'Did Sam Akka get mad?', nextStep: 5, type: 'focus' },
+        { text: 'Wait, you play Hollow Knight too?', nextStep: 5, type: 'focus' },
       ]
     },
-    // Step 3: Laddoo eaten
+    // Step 3: Chef to zebrafish connection
     {
-      storyText: 'Maybe! I mean, security guards gave them to me because they know I am a sweet little baby! But anyway, then I had a unprovoked tickle session with Sam akka, and she laughed so hard she spilled her water bottle!',
+      storyText: 'Nothing! But the chef had this really cool red apron, and I realized I need to post a photo on Instagram. I have these five photos from the event and I cannot decide which one looks better. Look at them, they look exactly identical!',
       options: [
-        { text: 'Haha! Standard Sam Akka. Then what?', nextStep: 6, type: 'focus' },
-        { text: 'Wait, did you steal her water too?', nextStep: 6, type: 'focus' },
+        { text: 'Let me see the photos.', nextStep: 'photos', type: 'special' }
       ]
     },
-    // Step 4: Food route
+    // Step 4: Movie plot tangent
     {
-      storyText: 'Exactly! Gulab jamun, bondas, laddoos—I can sense them within a five-mile radius. In fact, I think there is a stray biscuit in Dr. Amrutha\'s office right now! Should we go inspect?',
+      storyText: 'Exactly! So in the second half, he meets this old friend, which reminded me of the genotyping protocol because they both had to solve a genetic mystery! It was so chaotic. Anyway, speaking of photos, I need to post one right now.',
       options: [
-        { text: 'Yuktha, back to the lab story!', nextStep: 1, type: 'focus' },
-        { text: 'Lead the way, Captain Food!', nextStep: 6, type: 'focus' },
+        { text: 'Show me the photo options.', nextStep: 'photos', type: 'special' }
       ]
     },
-    // Step 5: Dress hunt
+    // Step 5: Hollow Knight tangent
     {
-      storyText: 'A red dress! I have been scrolling through Myntra for 14 hours. I found five red dresses. I took pictures. Here, look at them, they are so gorgeous! I need your help picking one right now.',
+      storyText: 'No, she didn\'t get mad, but she did steal my coffee! That reminded me of how I always try to learn Hindi and make you laugh. Let\'s check my photo options first though, I need to post them today.',
       options: [
-        { text: 'Okay, show me the photos.', nextStep: 'photos', type: 'special' }
-      ]
-    },
-    // Step 6: Final transition to photo picker
-    {
-      storyText: 'Anyway, I forgot where I was going with this story. Ah! I remember now. I need to post a photo on Instagram and I have these five options. They are literally the best photos ever. Pick one!',
-      options: [
-        { text: 'Show me the options!', nextStep: 'photos', type: 'special' }
+        { text: 'Alright, show me the photos.', nextStep: 'photos', type: 'special' }
       ]
     }
   ];
 
   const handleOptionClick = (option) => {
+    playBleep(option.type === 'focus' ? 440 : 550);
+
     if (option.nextStep === 'photos') {
       setShowPhotoChooser(true);
       return;
@@ -87,18 +96,21 @@ export default function YukthaGame({ onComplete }) {
     setPhotoPickCount((prev) => prev + 1);
 
     if (photoPickCount === 0) {
+      playBleep(350);
       setYappingHistory((prev) => [
         ...prev,
         { speaker: 'You', text: `Choose Photo #${idx}` },
-        { speaker: 'Yuktha', text: `Hmm... but don't you think Photo #${idx === 1 ? 2 : 1} is slightly better? The lighting is more dramatic there! Look closely!` }
+        { speaker: 'Yuktha', text: `Hmm... but don't you think Photo #${idx === 1 ? 2 : 1} is slightly better? The angle is different! Look closely!` }
       ]);
     } else if (photoPickCount === 1) {
+      playBleep(523);
       setYappingHistory((prev) => [
         ...prev,
         { speaker: 'You', text: `Okay, let's go with that one.` },
-        { speaker: 'Yuktha', text: `Wait, but what about Photo #3? The angle is so cute! Actually, let me ask three more people... Ah, whatever, you are the best! Let's just unlock my achievement!` }
+        { speaker: 'Yuktha', text: `Wait, but what about Photo #3? The lighting is so cute! Actually, let me ask three more people... Ah, whatever, you are the best! Let's unlock my achievement!` }
       ]);
     } else {
+      playBleep(880);
       onComplete();
     }
   };
@@ -130,17 +142,16 @@ export default function YukthaGame({ onComplete }) {
             <div style={styles.photoGrid}>
               {[1, 2, 3, 4, 5].map((idx) => (
                 <div key={idx} onClick={() => handlePhotoSelect(idx)} style={styles.photoCard}>
-                  {/* Styled photo thumbnail placeholder */}
                   <div style={styles.photoThumb}>
                     <Camera size={24} color="#555" />
-                    <span style={styles.thumbText}>Red Dress #{idx}</span>
+                    <span style={styles.thumbText}>Option #{idx}</span>
                   </div>
                   <button className="btn-neo" style={styles.selectBtn}>SELECT</button>
                 </div>
               ))}
             </div>
             {photoPickCount >= 2 && (
-              <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.winBtn}>
+              <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.winBtn}>
                 CLAIM ACHIEVEMENT
               </button>
             )}
@@ -301,7 +312,7 @@ const styles = {
     marginBottom: '8px',
   },
   thumbText: {
-    fontSize: '0.6rem',
+    fontSize: '0.65rem',
     fontWeight: 'bold',
     marginTop: '2px',
   },

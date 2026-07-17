@@ -1,56 +1,130 @@
 import React, { useState } from 'react';
-import { HelpCircle, Terminal as TermIcon, RotateCcw } from 'lucide-react';
+import { HelpCircle, Terminal as TermIcon, Play } from 'lucide-react';
 
 export default function AryanGame({ onComplete }) {
-  const [round, setRound] = useState(1);
+  const [phase, setPhase] = useState('preflop'); // 'preflop' | 'flop' | 'turn' | 'river' | 'showdown'
   const [chips, setChips] = useState(100);
-  const [aryanChips, setAryanChips] = useState(100);
+  const [pot, setPot] = useState(10);
   const [calcLogs, setCalcLogs] = useState([]);
   const [terminalInput, setTerminalInput] = useState('');
-  const [terminalLogs, setTerminalLogs] = useState(['coding_club_server v1.02. Type "help" or run system overrides.']);
+  const [terminalLogs, setTerminalLogs] = useState(['coding_club_server v1.02. Type "help" or run overrides.']);
   const [aryanMode, setAryanMode] = useState(false);
-  const [currentHand, setCurrentHand] = useState('Pair of Jacks');
-  const [pot, setPot] = useState(20);
+
+  const playBleep = (pitch = 440, duration = 0.08, type = 'sine') => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  };
+
+  // Cards data definition
+  const getPlayerHand = () => {
+    if (aryanMode) {
+      return [
+        { val: 'A', suit: '♥', color: '#ff477e' },
+        { val: 'K', suit: '♥', color: '#ff477e' }
+      ];
+    }
+    return [
+      { val: 'J', suit: '♠', color: '#000' },
+      { val: 'J', suit: '♦', color: '#ff477e' }
+    ];
+  };
+
+  const getAryanHand = () => {
+    return [
+      { val: 'Q', suit: '♣', color: '#000' },
+      { val: 'Q', suit: '♥', color: '#ff477e' }
+    ];
+  };
+
+  const getCommunityCards = () => {
+    const cards = [
+      { val: '2', suit: '♣', color: '#000', stage: 'flop' },
+      { val: '7', suit: '♥', color: '#ff477e', stage: 'flop' },
+      { val: 'K', suit: '♠', color: '#000', stage: 'flop' },
+      { val: 'J', suit: '♣', color: '#000', stage: 'turn' },
+      { val: 'A', suit: '♠', color: '#000', stage: 'river' }
+    ];
+
+    if (aryanMode) {
+      // Modify community to complete Royal Flush (10, J, Q, K, A of hearts)
+      return [
+        { val: '10', suit: '♥', color: '#ff477e', stage: 'flop' },
+        { val: 'J', suit: '♥', color: '#ff477e', stage: 'flop' },
+        { val: 'Q', suit: '♥', color: '#ff477e', stage: 'flop' },
+        { val: '3', suit: '♣', color: '#000', stage: 'turn' },
+        { val: '8', suit: '♠', color: '#000', stage: 'river' }
+      ];
+    }
+
+    if (phase === 'preflop') return [];
+    if (phase === 'flop') return cards.filter(c => c.stage === 'flop');
+    if (phase === 'turn') return cards.filter(c => c.stage === 'flop' || c.stage === 'turn');
+    return cards; // river or showdown
+  };
 
   const handleAction = (type) => {
     if (type === 'fold') {
+      playBleep(300, 0.15, 'triangle');
       setChips((prev) => Math.max(0, prev - 10));
-      setTerminalLogs((prev) => [...prev, 'System: Folded. Hand terminated.']);
-      setRound((prev) => prev + 1);
-    } else if (type === 'call' || type === 'raise') {
-      const bet = type === 'raise' ? 30 : 10;
+      setTerminalLogs((prev) => [...prev, 'System: You folded. Aryan wins the current pot.']);
+      // Reset hand
+      setPhase('preflop');
+      setPot(10);
+    } else {
+      // Call or Raise
+      const bet = type === 'raise' ? 20 : 10;
+      playBleep(520, 0.1);
       setChips((prev) => Math.max(0, prev - bet));
-      setAryanChips((prev) => Math.max(0, prev - bet));
-      setPot((prev) => prev + (bet * 2));
-      setTerminalLogs((prev) => [...prev, `System: You bet ${bet} chips. Aryan matches.`]);
-      
+      setPot((prev) => prev + bet * 2);
+      setTerminalLogs((prev) => [...prev, `System: You bet ${bet} chips. Aryan checks.`]);
+
+      // Progress phase
       setTimeout(() => {
-        if (aryanMode) {
-          setTerminalLogs((prev) => [...prev, 'Aryan: "Wait, you actually hit a Royal Flush? The probability of that is 0.00015%!"']);
-        } else {
-          setTerminalLogs((prev) => [...prev, 'Aryan: "Game theory suggests you are bluffing here. Expected value doesn\'t support this."']);
+        playBleep(650, 0.12);
+        if (phase === 'preflop') {
+          setPhase('flop');
+          setTerminalLogs((prev) => [...prev, 'Dealer: Dealing the FLOP.']);
+        } else if (phase === 'flop') {
+          setPhase('turn');
+          setTerminalLogs((prev) => [...prev, 'Dealer: Dealing the TURN. Player hits a Set of Jacks!']);
+        } else if (phase === 'turn') {
+          setPhase('river');
+          setTerminalLogs((prev) => [...prev, 'Dealer: Dealing the RIVER. Showdown is active!']);
+        } else if (phase === 'river') {
+          setPhase('showdown');
+          setTerminalLogs((prev) => [...prev, aryanMode ? 'Aryan: "Royal Flush?! This is mathematically impossible!"' : 'Aryan: "Set of Jacks beats my pair of Queens. Nice hand."']);
         }
-        setRound((prev) => prev + 1);
       }, 500);
     }
   };
 
   const askAryan = () => {
+    playBleep(380, 0.1);
     const mathFormulas = [
-      'Aryan: "Nash Equilibrium for this hand suggests raising is optimal."',
-      'Aryan: "Expected value calculation: EV = (0.33 * 80) - (0.67 * 20) = 13.0."',
-      'Aryan: "Considering the pot odds are 4 to 1, folding here is mathematically incorrect."',
-      'Aryan: "If we factor in physics and basic card-counting heuristics..."',
-      'You: "Bro. Just tell me if I should fold or not."',
-      'Aryan: "Well, strictly speaking, folding has a negative expectation value..."'
+      'Aryan: "Pre-flop: Pocket Jacks have 54% equity against random hands."',
+      'Aryan: "Flop: Community has K, 7, 2. Pocket Queens are ahead with 82% probability."',
+      'Aryan: "Turn: Jack of Clubs falls! Your equity increases to 96% with a Set of Jacks."',
+      'Aryan: "Expected value of calling: EV = (0.96 * Pot) - (0.04 * Bet) = positive utility."',
+      'You: "Bro, just tell me if I should fold."',
+      'Aryan: "Well, mathematically speaking, folding here is a negative expectation value action."'
     ];
 
     const nextLogs = [
       mathFormulas[Math.floor(Math.random() * mathFormulas.length)]
     ];
-
     setCalcLogs((prev) => [...prev, ...nextLogs]);
-    setTerminalLogs((prev) => [...prev, 'Aryan calculates the expected utility...']);
+    setTerminalLogs((prev) => [...prev, 'Aryan calculates hand equities...']);
   };
 
   const handleTerminalSubmit = (e) => {
@@ -59,65 +133,38 @@ export default function AryanGame({ onComplete }) {
     setTerminalInput('');
 
     if (command === 'help') {
+      playBleep(440, 0.08);
       setTerminalLogs((prev) => [...prev, '> ' + command, 'Commands: help, clear, sudo fix_everything']);
     } else if (command === 'clear') {
+      playBleep(400, 0.08);
       setTerminalLogs([]);
     } else if (command === 'sudo fix_everything') {
+      playBleep(700, 0.3, 'sawtooth');
       setAryanMode(true);
-      setCurrentHand('Royal Flush');
+      setPhase('showdown');
       setTerminalLogs((prev) => [
         ...prev,
         '> ' + command,
-        'OVERRIDE: SUCCESSFUL.',
-        'CARD VALUE MODIFIED: Upgraded to Royal Flush.'
+        'OVERRIDE: INITIATED.',
+        'Converting pocket cards to A-K of Hearts...',
+        'Modifying community flop to Q-J-10 of Hearts...',
+        'Hand Upgraded: Royal Flush successfully completed!'
       ]);
-      
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
-      } catch(e) {}
     } else {
+      playBleep(220, 0.12);
       setTerminalLogs((prev) => [...prev, '> ' + command, 'bash: command not found: ' + command]);
     }
   };
 
-  const getCards = () => {
-    if (aryanMode) {
-      return [
-        { val: '10', suit: '♠', color: '#000' },
-        { val: 'J', suit: '♠', color: '#000' },
-        { val: 'Q', suit: '♠', color: '#000' },
-        { val: 'K', suit: '♠', color: '#000' },
-        { val: 'A', suit: '♠', color: '#000' }
-      ];
-    } else {
-      return [
-        { val: 'J', suit: '♠', color: '#000' },
-        { val: 'J', suit: '♦', color: '#ff477e' },
-        { val: '2', suit: '♣', color: '#000' },
-        { val: '7', suit: '♥', color: '#ff477e' },
-        { val: 'Q', suit: '♠', color: '#000' }
-      ];
-    }
-  };
-
-  const cards = getCards();
-  const gameWon = round >= 4 || aryanMode;
+  const communityCards = getCommunityCards();
+  const playerHand = getPlayerHand();
+  const aryanHand = getAryanHand();
+  const gameWon = phase === 'showdown' || aryanMode;
 
   return (
     <div style={styles.container}>
       <div style={styles.hud}>
-        <span className="text-retro" style={styles.hudTitle}>ALL IN</span>
+        <span className="text-retro" style={styles.hudTitle}>TEXAS HOLD'EM POKER</span>
         <div style={styles.statContainer}>
           <span style={styles.statText}>CHIPS: {chips}</span>
           <span style={styles.statText}>POT: {pot}</span>
@@ -130,14 +177,44 @@ export default function AryanGame({ onComplete }) {
         <div style={styles.opponentArea}>
           <span style={styles.avatar}>🧑‍💻</span>
           <span style={styles.name}>Aryan (Bhopal / Physics)</span>
-          <div style={styles.bubble}>"Let's see what the math says."</div>
+          <div style={styles.opponentCards}>
+            {phase === 'showdown' ? (
+              <div style={styles.cardsRowSmall}>
+                {aryanHand.map((card, i) => (
+                  <div key={i} style={{ ...styles.pokerCardSmall, color: card.color }}>
+                    <span>{card.val}{card.suit}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={styles.cardBacks}>🎴 🎴</div>
+            )}
+          </div>
+        </div>
+
+        {/* Community Cards Display */}
+        <div style={styles.communityArea}>
+          <div style={styles.sectionLabel}>COMMUNITY CARDS</div>
+          <div style={styles.cardsRow}>
+            {communityCards.map((card, i) => (
+              <div key={i} style={{ ...styles.pokerCard, color: card.color }}>
+                <span style={styles.cardCorner}>{card.val}</span>
+                <span style={styles.cardSuit}>{card.suit}</span>
+                <span style={{ ...styles.cardCorner, ...styles.cardCornerBottom }}>{card.val}</span>
+              </div>
+            ))}
+            {/* Render placeholder cards if empty */}
+            {Array.from({ length: 5 - communityCards.length }).map((_, i) => (
+              <div key={i} style={styles.cardPlaceholder}>?</div>
+            ))}
+          </div>
         </div>
 
         {/* Player Cards rendering */}
         <div style={styles.playerCards}>
-          <div style={styles.cardHeader}>YOUR HAND ({currentHand}):</div>
+          <div style={styles.cardHeader}>YOUR HAND:</div>
           <div style={styles.cardsRow}>
-            {cards.map((card, i) => (
+            {playerHand.map((card, i) => (
               <div key={i} style={{ ...styles.pokerCard, color: card.color }}>
                 <span style={styles.cardCorner}>{card.val}</span>
                 <span style={styles.cardSuit}>{card.suit}</span>
@@ -150,7 +227,9 @@ export default function AryanGame({ onComplete }) {
         {/* Control actions */}
         <div style={styles.controls}>
           <button onClick={() => handleAction('fold')} className="btn-neo secondary" style={styles.btn}>FOLD</button>
-          <button onClick={() => handleAction('call')} className="btn-neo secondary" style={styles.btn}>CALL</button>
+          <button onClick={() => handleAction('call')} className="btn-neo secondary" style={styles.btn}>
+            {phase === 'river' ? 'SHOWDOWN' : 'CALL'}
+          </button>
           <button onClick={() => handleAction('raise')} className="btn-neo secondary" style={styles.btn}>RAISE</button>
           <button onClick={askAryan} className="btn-neo accent" style={styles.btn}>
             <HelpCircle size={16} /> ASK ARYAN
@@ -182,7 +261,7 @@ export default function AryanGame({ onComplete }) {
               <input
                 type="text"
                 value={terminalInput}
-                onChange={(e) => setTerminalInput(e.target.value)}
+                onChange={(e) => { playBleep(800, 0.02, 'sine'); setTerminalInput(e.target.value); }}
                 className="cli-input"
                 placeholder="Type 'sudo fix_everything'..."
               />
@@ -194,7 +273,7 @@ export default function AryanGame({ onComplete }) {
       {gameWon && (
         <div style={styles.winBox}>
           <p style={styles.winText}>Aryan: "You actually won. The probability model didn't expect that override."</p>
-          <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
+          <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
             CLAIM ACHIEVEMENT
           </button>
         </div>
@@ -240,7 +319,7 @@ const styles = {
     border: '2.5px solid #333',
   },
   felt: {
-    minHeight: '280px',
+    minHeight: '340px',
     border: '4px solid #5c4033',
     borderRadius: '24px',
     padding: '15px',
@@ -249,7 +328,7 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'space-between',
     backgroundColor: '#0b6623',
-    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.6)',
+    boxShadow: 'inset 0 0 35px rgba(0,0,0,0.6)',
   },
   opponentArea: {
     display: 'flex',
@@ -258,43 +337,60 @@ const styles = {
     gap: '2px',
   },
   avatar: {
-    fontSize: '2rem',
+    fontSize: '1.8rem',
   },
   name: {
     fontFamily: "'Fredoka', sans-serif",
     fontSize: '0.8rem',
     fontWeight: 'bold',
   },
-  bubble: {
-    backgroundColor: '#000',
-    border: '2px solid #555',
-    borderRadius: '8px',
-    padding: '2px 8px',
-    fontSize: '0.75rem',
-    color: '#10b981',
+  opponentCards: {
     marginTop: '2px',
+  },
+  cardBacks: {
+    fontSize: '1.2rem',
+    letterSpacing: '4px',
+  },
+  communityArea: {
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    border: '2px solid #044416',
+    borderRadius: '8px',
+    padding: '8px 5px',
+    margin: '8px 0',
+  },
+  sectionLabel: {
+    fontSize: '0.6rem',
+    color: '#06d6a0',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: '4px',
   },
   playerCards: {
     backgroundColor: 'rgba(0,0,0,0.4)',
     border: '2px dashed #ffd166',
     borderRadius: '8px',
-    padding: '10px 5px',
-    margin: '10px 0',
+    padding: '6px 5px',
+    margin: '5px 0',
   },
   cardHeader: {
-    fontSize: '0.65rem',
+    fontSize: '0.6rem',
     color: '#ccc',
     textAlign: 'center',
-    marginBottom: '5px',
   },
   cardsRow: {
     display: 'flex',
     gap: '6px',
     justifyContent: 'center',
+    marginTop: '4px',
+  },
+  cardsRowSmall: {
+    display: 'flex',
+    gap: '4px',
+    justifyContent: 'center',
   },
   pokerCard: {
-    width: '45px',
-    height: '68px',
+    width: '42px',
+    height: '62px',
     backgroundColor: '#fff',
     border: '2px solid #000',
     borderRadius: '6px',
@@ -305,8 +401,33 @@ const styles = {
     boxShadow: '2.5px 2.5px 0px #000',
     position: 'relative',
   },
-  cardCorner: {
+  pokerCardSmall: {
+    width: '32px',
+    height: '42px',
+    backgroundColor: '#fff',
+    border: '1.5px solid #000',
+    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 'bold',
     fontSize: '0.75rem',
+  },
+  cardPlaceholder: {
+    width: '42px',
+    height: '62px',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    border: '2px dashed #044416',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#044416',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+  },
+  cardCorner: {
+    fontSize: '0.7rem',
     fontWeight: 'bold',
     fontFamily: "'Fredoka', sans-serif",
     textAlign: 'left',
@@ -317,7 +438,7 @@ const styles = {
     transform: 'rotate(180deg)',
   },
   cardSuit: {
-    fontSize: '1.5rem',
+    fontSize: '1.4rem',
     textAlign: 'center',
     lineHeight: '1',
   },
@@ -328,7 +449,7 @@ const styles = {
   },
   btn: {
     fontSize: '0.75rem',
-    padding: '6px 10px',
+    padding: '5px 10px',
     boxShadow: '1.5px 1.5px 0px #000',
     borderWidth: '1.5px',
     transform: 'none',

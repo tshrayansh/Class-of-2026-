@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Heart, Phone, Star } from 'lucide-react';
+import { Heart, Phone } from 'lucide-react';
 
 export default function AnuthiGame({ onComplete }) {
   const [crises, setCrises] = useState([
-    { id: 'course', title: 'Course Exam Crisis', status: 'pending', question: 'Help! The math physics exam is in 5 minutes and I know zero topics!', response: 'Anuthi Di: "Sit down! First, stop crying. Open CMIT notes, memorize the main equations, and if nothing works, just go sit next to Aryan. And remember to drink water!"' },
+    { id: 'course', title: 'Course Exam Crisis', status: 'pending', question: 'Help! The physics exam is in 5 minutes and I know zero topics!', response: 'Anuthi Di: "Sit down! First, stop crying. Open your lecture notes, memorize the main formulas, and if nothing works, just go sit next to Aryan. And remember to drink water!"' },
     { id: 'dj_setup', title: 'Diwali DJ Sound Crisis', status: 'pending', question: 'Diwali Garba is in 10 minutes and the sound system speakers are blowing fuses!', response: 'Anuthi Di: "Calm down! I am heading over right now. I already scheduled the logistics team and talked to the electricians. You go start the Garba circle, I will get the music running!"' },
     { id: 'life', title: 'Life Advice Crisis', status: 'pending', question: 'I don\'t know what I\'m doing with my major or my life...', response: 'Anuthi Di: "Hey. Everyone is figuring it out. You are doing amazing. Let\'s go to J Cafe at 11pm, buy a cold coffee, and talk about it for three hours. No stress."' },
-    { id: 'room', title: 'Room Mess Crisis', status: 'pending', question: 'My hostel room looks like a tornado hit a garbage bin.', response: 'Anuthi Di: "How do you even sleep here?! Get up! Put the books in the rack, fold the sheets. Let\'s clean this up together, then we go get fried rice."' }
+    { id: 'intern', title: 'Internship Advice Crisis', status: 'pending', question: 'Help! My internship application is due and my draft SOP sounds like a recipe for Poha!', response: 'Anuthi Di: "Bring the draft here. Let\'s rewrite the introduction to make it professional and highlight your lab achievements. You will do great, don\'t worry!"' }
   ]);
   const [activeCrisis, setActiveCrisis] = useState(null);
   const [showHotline, setShowHotline] = useState(false);
@@ -14,7 +14,24 @@ export default function AnuthiGame({ onComplete }) {
   const [mpSpecial, setMpSpecial] = useState(false);
   const [sevSprinkled, setSevSprinkled] = useState(0);
 
+  const playBleep = (pitch = 440) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.1);
+    } catch (e) {}
+  };
+
   const resolveCrisis = (id) => {
+    playBleep(660);
     setCrises((prev) =>
       prev.map((c) => (c.id === id ? { ...c, status: 'resolved' } : c))
     );
@@ -24,13 +41,14 @@ export default function AnuthiGame({ onComplete }) {
   };
 
   const startHotline = (crisis) => {
+    playBleep(350);
     setActiveCrisis(crisis);
     setShowHotline(true);
   };
 
   const triggerCall = () => {
+    playBleep(440);
     setHotlineCall(true);
-    // Synth ringtone
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = audioCtx.createOscillator();
@@ -57,9 +75,9 @@ export default function AnuthiGame({ onComplete }) {
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.frequency.setValueAtTime(150 + Math.random() * 80, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.05);
     } catch(e) {}
@@ -128,7 +146,7 @@ export default function AnuthiGame({ onComplete }) {
           {allResolved && (
             <div style={styles.transitionBox}>
               <p style={styles.transitionText}>All crises managed! You survived the semester.</p>
-              <button onClick={() => setMpSpecial(true)} className="btn-neo accent animate-bounce-hover" style={styles.continueBtn}>
+              <button onClick={() => { playBleep(600); setMpSpecial(true); }} className="btn-neo accent animate-bounce-hover" style={styles.continueBtn}>
                 GO TO MP DIWALI SPECIAL ➔
               </button>
             </div>
@@ -143,7 +161,6 @@ export default function AnuthiGame({ onComplete }) {
           <div onClick={handleSprinkle} className="poha-plate" style={styles.plate}>
             <div style={styles.pohaBase}>
               <div style={styles.jalebiCenter}></div>
-              {/* Render sprinkled sev */}
               {Array.from({ length: Math.min(sevSprinkled, 30) }).map((_, i) => (
                 <div
                   key={i}
@@ -169,7 +186,7 @@ export default function AnuthiGame({ onComplete }) {
               <p style={styles.endingSubText}>
                 "Some people don't just become seniors. They become part of what makes a place feel like home."
               </p>
-              <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
+              <button onClick={() => { playBleep(880); onComplete(); }} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
                 CLAIM ACHIEVEMENT
               </button>
             </div>
