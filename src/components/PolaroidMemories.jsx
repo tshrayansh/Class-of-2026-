@@ -95,7 +95,9 @@ export default function PolaroidMemories({ character, onPlayAgain, onBackToSelec
       {/* Draggable Scrapbook Board Canvas */}
       <div className="scrapbook-canvas" ref={containerRef} style={styles.canvas}>
         {polaroids.map((p) => {
-          const imageUrl = `./characters/${character.id}/${p.filename}`;
+          const path = window.location.pathname.toLowerCase();
+          const basePrefix = (path.includes('/b21') || path.includes('/mndl')) ? '../' : './';
+          const imageUrl = `${basePrefix}characters/${character.id}/${p.filename}`;
           
           return (
             <div
