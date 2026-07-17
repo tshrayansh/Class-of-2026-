@@ -12,9 +12,37 @@ export default function App() {
   const [audioCtx, setAudioCtx] = useState(null);
   const [intervalId, setIntervalId] = useState(null);
 
+  // Group parsing logic: defaults to 'MNDL', changes to 'B21' if specified in path/hash/search
+  const getGroupFromURL = () => {
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const search = window.location.search.toLowerCase();
+    
+    if (path.includes('b21') || hash.includes('b21') || search.includes('b21')) {
+      return 'B21';
+    }
+    return 'MNDL';
+  };
+
+  const [group, setGroup] = useState(getGroupFromURL());
+
+  // Listen to navigation events to swap groups reactively
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setGroup(getGroupFromURL());
+    };
+
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
+
   // Catchy NES step sequencer
   const startSequencer = (ctx) => {
-    // 16-step melody loop (mellow chiptune theme)
     const melody = [
       261.63, 329.63, 392.00, 523.25, 440.00, 349.23, 392.00, 493.88,
       329.63, 392.00, 523.25, 659.25, 587.33, 493.88, 523.25, 0
@@ -23,7 +51,7 @@ export default function App() {
     let step = 0;
     const id = setInterval(() => {
       try {
-        if (ctx.state === 'suspended') return; // wait for user interaction to resume
+        if (ctx.state === 'suspended') return;
 
         const note = melody[step % melody.length];
         if (note > 0) {
@@ -32,7 +60,7 @@ export default function App() {
           osc.connect(gain);
           gain.connect(ctx.destination);
 
-          osc.type = 'triangle'; // Mellow retro sound
+          osc.type = 'triangle';
           osc.frequency.setValueAtTime(note, ctx.currentTime);
 
           gain.gain.setValueAtTime(0.015, ctx.currentTime);
@@ -42,7 +70,6 @@ export default function App() {
           osc.stop(ctx.currentTime + 0.18);
         }
 
-        // Bassline every 2 steps
         if (step % 2 === 0) {
           const bassProgress = [130.81, 110.00, 87.31, 98.00]; // C3 -> A2 -> F2 -> G2
           const bassFreq = bassProgress[Math.floor(step / 4) % bassProgress.length];
@@ -64,12 +91,11 @@ export default function App() {
 
         step++;
       } catch (err) {}
-    }, 180); // 180ms per step = catchy pacing!
+    }, 180);
 
     return id;
   };
 
-  // Resume or start audio context
   const initAudio = () => {
     let ctx = audioCtx;
     if (!ctx) {
@@ -82,7 +108,6 @@ export default function App() {
     return ctx;
   };
 
-  // Global click feedback sound
   const playClick = () => {
     try {
       const ctx = initAudio();
@@ -103,7 +128,6 @@ export default function App() {
     } catch (e) {}
   };
 
-  // Initialize BGM on mount
   useEffect(() => {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     setAudioCtx(ctx);
@@ -155,7 +179,9 @@ export default function App() {
     <div className="game-layout">
       {/* Global Header with Music Control */}
       <div style={styles.globalHeader}>
-        <span style={styles.logoText} className="text-retro">MNDL_RETRO_OS v2</span>
+        <span style={styles.logoText} className="text-retro">
+          {group === 'B21' ? 'B21_RETRO_OS v2' : 'MNDL_RETRO_OS v2'}
+        </span>
         <button onClick={toggleBgm} className="btn-neo accent" style={styles.musicBtn}>
           {bgmActive ? <Volume2 size={16} /> : <VolumeX size={16} />}
           <span style={styles.musicLabel}>{bgmActive ? 'BGM: ON' : 'BGM: OFF'}</span>
@@ -163,11 +189,11 @@ export default function App() {
       </div>
 
       {view === 'landing' && (
-        <LandingScreen onStart={handleStart} initAudio={initAudio} />
+        <LandingScreen onStart={handleStart} initAudio={initAudio} group={group} />
       )}
 
       {view === 'select' && (
-        <CharacterSelect onSelectCharacter={handleSelectCharacter} />
+        <CharacterSelect onSelectCharacter={handleSelectCharacter} group={group} />
       )}
 
       {view === 'game' && selectedChar && (

@@ -2,7 +2,12 @@ import React from 'react';
 import { characters } from '../data/characters';
 import { Sword, Shield, Zap, Sparkles, AlertCircle } from 'lucide-react';
 
-export default function CharacterSelect({ onSelectCharacter }) {
+export default function CharacterSelect({ onSelectCharacter, group }) {
+  const isB21 = group === 'B21';
+  const filteredCharacters = characters.filter((c) => {
+    const isB21Member = ['aryan', 'gati', 'anuthi'].includes(c.id);
+    return isB21 ? isB21Member : !isB21Member;
+  });
   
   // Synthetic retro bleep on hover
   const playHoverSound = () => {
@@ -83,7 +88,7 @@ export default function CharacterSelect({ onSelectCharacter }) {
 
       {/* Grid of Characters */}
       <div style={styles.grid}>
-        {characters.map((char) => {
+        {filteredCharacters.map((char) => {
           // Construct portrait paths to try:
           // Because user can have profile.jpg or profile.jpeg
           const imageUrl = `./characters/${char.id}/${char.portrait}`;

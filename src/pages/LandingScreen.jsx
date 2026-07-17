@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Terminal, Play } from 'lucide-react';
 
-export default function LandingScreen({ onStart, initAudio }) {
+export default function LandingScreen({ onStart, initAudio, group }) {
   const [logs, setLogs] = useState([]);
   const [bootComplete, setBootComplete] = useState(false);
 
+  const isB21 = group === 'B21';
+
   const bootLogs = [
-    'Initializing MNDL-OS v2.0...',
+    isB21 ? 'Initializing B21-OS v2.0...' : 'Initializing MNDL-OS v2.0...',
     'Scanning databases...',
     'Loading game files...',
     'Establishing secure connection...',
@@ -28,7 +30,7 @@ export default function LandingScreen({ onStart, initAudio }) {
     }, 200);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [group]); // Re-run if group changes
 
   const playStartSound = () => {
     try {
@@ -76,7 +78,7 @@ export default function LandingScreen({ onStart, initAudio }) {
             <span style={{ ...styles.dot, backgroundColor: '#ffbd2e' }}></span>
             <span style={{ ...styles.dot, backgroundColor: '#27c93f' }}></span>
           </div>
-          <span style={styles.titleText}>mndl_server_log.sh</span>
+          <span style={styles.titleText}>{isB21 ? 'b21_server_log.sh' : 'mndl_server_log.sh'}</span>
         </div>
 
         {/* Terminal Body */}
