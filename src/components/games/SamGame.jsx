@@ -4,8 +4,10 @@ import { Droplet, Heart, ShieldAlert, Award } from 'lucide-react';
 export default function SamGame({ onComplete }) {
   const [confidence, setConfidence] = useState(100);
   const [hydration, setHydration] = useState(10);
+  const [samWater, setSamWater] = useState(100);
   const [samHappiness, setSamHappiness] = useState(50);
-  const [logs, setLogs] = useState(['You sit opposite Sam Akka at the Mafia round table. She looks extremely innocent.']);
+  const [isPouring, setIsPouring] = useState(false);
+  const [logs, setLogs] = useState(['You are playing Mafia with Sam Akka. She is currently making a very convincing speech.']);
   const [step, setStep] = useState(0);
 
   const addLog = (msg) => {
@@ -15,24 +17,24 @@ export default function SamGame({ onComplete }) {
   const gaslightPrompts = [
     {
       claim: "You were seen near the victim's house last night, Sam!",
-      response: 'Sam: "Near the house? I was in my room eating chapati with raita and playing Hollow Knight! Plus, if I were the Mafia, why would I leave clues? Think about the game theory!"',
+      response: 'Sam: "If I were the Mafia, do you really think I\'d leave obvious clues? I was in my room playing Hollow Knight and eating chapati with raita. Your logic makes no sense."',
       confidenceDrop: 25
     },
     {
       claim: "Your arguments are too defensive. You must be Mafia!",
-      response: 'Sam: "Defensive? I am literally a QSI contributor and Mazhavil co-founder, I literally built half the clubs here. Why would I destroy my own server? You are reaching."',
+      response: 'Sam: "Defensive? I literally run SnT and Mazhavil. Why would I sabotage the server? You are reaching to cover your own tracks."',
       confidenceDrop: 30
     },
     {
       claim: "You manipulated the vote in round 1!",
-      response: 'Sam: "I didn\'t manipulate, I guided the town! Look at my earrings—do these look like the earrings of a Mafia boss? You are clearly trying to frame me to cover your own tracks."',
+      response: 'Sam: "I guided the town! Look at my earrings—do these look like the earrings of a cold-blooded killer? You are clearly trying to frame me."',
       confidenceDrop: 42
     }
   ];
 
   const handleInterrogate = () => {
     if (step >= gaslightPrompts.length) {
-      addLog('Sam: "You have no evidence left, Shrayansh. Admit it, I am town!"');
+      addLog('Sam: "You have no arguments left. Admit it, I am innocent town."');
       return;
     }
 
@@ -46,11 +48,16 @@ export default function SamGame({ onComplete }) {
   };
 
   const handleStealWater = () => {
-    setHydration((prev) => Math.min(100, prev + 30));
-    setSamHappiness((prev) => prev + 10);
-    addLog('Water Steal: You forgot your water bottle (again) and drank from Sam\'s bottle. Sam: "Shrayansh! Drink your own water... wait, I\'ll let it slide if you vote for Niranjan next round."');
+    if (isPouring) return;
+    if (samWater <= 10) {
+      addLog('Sam\'s water bottle is empty! You need to bring your own bottle next time.');
+      return;
+    }
+
+    setIsPouring(true);
+    addLog('You steal water from Sam\'s bottle because you forgot yours again.');
     
-    // Water slurp sound
+    // Slurp sound
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = audioCtx.createOscillator();
@@ -65,26 +72,48 @@ export default function SamGame({ onComplete }) {
       osc.start();
       osc.stop(audioCtx.currentTime + 0.15);
     } catch(e) {}
+
+    // Complete pouring after 1 second
+    setTimeout(() => {
+      setIsPouring(false);
+      setSamWater((prev) => Math.max(10, prev - 30));
+      setHydration((prev) => Math.min(100, prev + 30));
+      setSamHappiness((prev) => prev + 10);
+      addLog('Sam: "Shrayansh, seriously? Buy a water bottle! Fine, I will let it slide if you vote for Niranjan with me."');
+    }, 1000);
   };
 
   const handleErodeSnacks = () => {
     setSamHappiness((prev) => prev + 25);
-    addLog('Erode Snack Powerup: Sam shares banana chips from Erode, Tamil Nadu. Delicious! Sam happiness: +25');
+    addLog('Erode Snacks: Sam shares banana chips from Erode. Tasty!');
   };
 
   const handleTease = () => {
     setSamHappiness((prev) => prev + 40);
-    setConfidence((prev) => Math.max(3, prev - 5));
-    addLog('Sam bullies Shrayansh: "Did you actually think you could solve this quiz? You forgot the basic Hollow Knight lore!"');
+    setConfidence((prev) => Math.max(3, prev - 10));
+    addLog('Sam: "You think you can solve this quiz? You forgot the basic Hollow Knight lore!"');
   };
 
   return (
     <div style={styles.container}>
+      <style>{`
+        @keyframes drip {
+          0% { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(35px) scale(0.6); opacity: 0; }
+        }
+        .drip-effect {
+          animation: drip 0.6s infinite linear;
+          color: #00d2ff;
+          font-size: 1.2rem;
+          line-height: 1;
+        }
+      `}</style>
+
       <div style={styles.hud}>
         <span className="text-retro" style={styles.hudTitle}>TRUST NO ONE</span>
         <div style={styles.statContainer}>
           <span style={styles.statText}>HYDRATION: {hydration}%</span>
-          <span style={styles.statText}>SAM JOY: {samHappiness}</span>
+          <span style={styles.statText}>SAM HAPINESS: {samHappiness}</span>
         </div>
       </div>
 
@@ -97,10 +126,42 @@ export default function SamGame({ onComplete }) {
           </div>
         </div>
 
-        <div style={styles.tableCenter}>
+        {/* Animation Visual Area */}
+        <div style={styles.visualArea}>
           <div style={styles.suspectCard} className="animate-shake">
             <span style={styles.samAvatar}>🎭</span>
-            <span style={styles.samTitle}>SAM (MAFIA SUSPECT)</span>
+            <span style={styles.samTitle}>SAM</span>
+          </div>
+
+          {/* Interactive Water Bottle Container */}
+          <div style={styles.bottleContainer}>
+            <div style={styles.bottlePosition}>
+              <svg width="35" height="80" viewBox="0 0 35 80" style={{
+                transition: 'transform 0.5s ease',
+                transform: isPouring ? 'rotate(-95deg) translate(-5px, -15px)' : 'rotate(0deg)',
+                overflow: 'visible',
+              }}>
+                {/* Cap */}
+                <rect x="11" y="2" width="13" height="6" rx="1.5" fill="#4b5563" stroke="#000" strokeWidth="2" />
+                {/* Neck */}
+                <rect x="13" y="8" width="9" height="5" fill="#6b7280" stroke="#000" strokeWidth="2" />
+                {/* Bottle Body */}
+                <rect x="4" y="13" width="27" height="64" rx="5" fill="rgba(173, 216, 230, 0.35)" stroke="#000" strokeWidth="2" />
+                {/* Fluid inside bottle */}
+                <rect x="6" y={15 + (60 - samWater * 0.6)} width="23" height={samWater * 0.6} rx="3" fill="#00b4d8" opacity="0.8" style={{ transition: 'y 0.5s ease, height 0.5s ease' }} />
+              </svg>
+              {isPouring && (
+                <div style={styles.dripLine}>
+                  <div className="drip-effect" style={{ animationDelay: '0s' }}>💧</div>
+                  <div className="drip-effect" style={{ animationDelay: '0.2s' }}>💧</div>
+                </div>
+              )}
+            </div>
+            
+            <div style={styles.cupContainer}>
+              <span style={{ fontSize: '1.5rem' }}>🥤</span>
+              <span style={styles.cupText}>YOUR CUP ({hydration}%)</span>
+            </div>
           </div>
         </div>
 
@@ -112,7 +173,7 @@ export default function SamGame({ onComplete }) {
             className={`btn-neo ${step >= gaslightPrompts.length ? 'disabled' : 'secondary'}`}
             style={styles.actionBtn}
           >
-            🔍 Accuse with Claim #{step + 1}
+            🔍 Claim #{step + 1}
           </button>
           
           <button onClick={handleStealWater} className="btn-neo secondary" style={styles.actionBtn}>
@@ -141,7 +202,7 @@ export default function SamGame({ onComplete }) {
       {confidence <= 3 && (
         <div style={styles.winBox}>
           <p style={styles.winText}>
-            You accuse Sam anyway. She smiles, votes you out of the server, and says: "Told you. Trust no one!"
+            You accuse Sam. She smiles, vote-kicks you, and tells you to bring your own water next time.
           </p>
           <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
             CLAIM ACHIEVEMENT
@@ -219,29 +280,64 @@ const styles = {
     backgroundColor: '#ff477e',
     transition: 'width 0.2s ease',
   },
-  tableCenter: {
+  visualArea: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
+    alignItems: 'center',
     margin: '10px 0',
+    backgroundColor: '#262323',
+    padding: '15px',
+    borderRadius: '8px',
+    border: '2px solid #000',
   },
   suspectCard: {
     backgroundColor: '#2d1e2f',
     border: '3.5px solid #ff477e',
     borderRadius: '12px',
-    padding: '15px 30px',
+    padding: '15px 25px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '6px',
+    gap: '4px',
   },
   samAvatar: {
-    fontSize: '3rem',
+    fontSize: '2.5rem',
   },
   samTitle: {
     fontFamily: "'Press Start 2P', monospace",
     fontSize: '0.65rem',
     color: '#ff477e',
     fontWeight: 'bold',
+  },
+  bottleContainer: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: '20px',
+    position: 'relative',
+  },
+  bottlePosition: {
+    position: 'relative',
+    height: '90px',
+  },
+  dripLine: {
+    position: 'absolute',
+    top: '5px',
+    left: '-20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '5px',
+  },
+  cupContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '2px',
+  },
+  cupText: {
+    fontFamily: "'VT323', monospace",
+    fontSize: '1.2rem',
+    color: '#00b4d8',
   },
   actionsGrid: {
     display: 'grid',
@@ -264,7 +360,7 @@ const styles = {
     border: '2.5px solid #000',
     borderRadius: '8px',
     padding: '12px',
-    height: '150px',
+    height: '130px',
     overflowY: 'auto',
     textAlign: 'left',
     fontFamily: "'VT323', monospace",

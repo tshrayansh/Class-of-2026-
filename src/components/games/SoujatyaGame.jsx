@@ -3,16 +3,16 @@ import { HelpCircle, Star, Award } from 'lucide-react';
 
 export default function SoujatyaGame({ onComplete }) {
   const [nodes, setNodes] = useState([
-    { id: 'start', label: 'Dada, seen this movie?', x: 50, y: 50, active: true, quotes: 'Soujatya: "Ah, yes! Speaking of films, did you know that the director was heavily inspired by the cultural shift in postwar Bengal? In fact..."' }
+    { id: 'start', label: 'Dada, seen this movie?', x: 50, y: 50, parentId: null, quotes: 'Soujatya: "Ah, yes! Speaking of films, did you know that the director was heavily inspired by the cultural shift in postwar Bengal? In fact..."' }
   ]);
   const [logs, setLogs] = useState(['You asked Dada an innocent question about a movie...']);
   const [topicCount, setTopicCount] = useState(1);
 
   const topicPool = [
     { label: '70s Bollywood', quotes: 'Soujatya: "The lyrics in Kishore Kumar songs were pure poetry. Let me quote a couple of Urdu shayaris that capture this exact feeling..."' },
-    { label: 'Urdu Poetry', quotes: 'Soujatya: "Ghalib once wrote about the pain of existence. If you translate the Punjabi folklore from the same era, you find this beautiful cultural impact..."' },
+    { label: 'Urdu Poetry', quotes: 'Soujatya: "Ghalib once wrote about the pain of existence. If you translate the Punjabi folklore from the same era, you find this beautiful connection..."' },
     { label: 'Bhopal History', quotes: 'Soujatya: "Bhopal has such rich architecture. Speaking of that, the political landscape of central India in the 19th century was..."' },
-    { label: 'Zebrafish Heartrate', quotes: 'Soujatya: "From a scientific standpoint, the heartrate changes under adrenaline. Which is similar to the metabolic curves in evolutionary biology..."' },
+    { label: 'Zebrafish Biology', quotes: 'Soujatya: "From a scientific standpoint, the heart rate changes under adrenaline. Which is similar to the metabolic curves in evolutionary biology..."' },
     { label: 'Obscure Fact #42', quotes: 'Soujatya: "Did you know that the first printing press in India was actually imported by Jesuits in Goa in 1556? Which changed education policy..."' },
     { label: 'Classical Music', quotes: 'Soujatya: "Rabindra Sangeet has these ragas that resemble old Sufi tunes. If you listen to this 1952 recording, you can hear..."' },
     { label: 'Political Philosophy', quotes: 'Soujatya: "The impact of early socialist newsletters in Kolkata was massive. In fact, if you look at their literary columns..."' }
@@ -21,11 +21,10 @@ export default function SoujatyaGame({ onComplete }) {
   const handleNodeClick = (node) => {
     addLog(node.quotes || 'Dada explains the connections with passion...');
 
-    // Spawn 2 new nodes in random places
+    // Spawn 2 new nodes
     const availablePool = topicPool.filter((p) => !nodes.some((n) => n.label === p.label));
     if (availablePool.length === 0) return;
 
-    // Pick random topics
     const spawnedCount = Math.min(availablePool.length, 2);
     const newNodes = [];
     
@@ -34,15 +33,16 @@ export default function SoujatyaGame({ onComplete }) {
       const item = availablePool[idx];
       availablePool.splice(idx, 1);
 
-      // Random position inside the coordinate boundaries
-      const rx = Math.floor(Math.random() * 70) + 15; // percentage-based
-      const ry = Math.floor(Math.random() * 65) + 20;
+      // Random position inside bounds
+      const rx = Math.floor(Math.random() * 60) + 20;
+      const ry = Math.floor(Math.random() * 55) + 25;
 
       newNodes.push({
         id: Date.now() + Math.random(),
         label: item.label,
         x: rx,
         y: ry,
+        parentId: node.id,
         quotes: item.quotes
       });
     }
@@ -58,7 +58,7 @@ export default function SoujatyaGame({ onComplete }) {
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(400 + (nodes.length * 40), audioCtx.currentTime); // increase pitch as nodes grow!
+      osc.frequency.setValueAtTime(300 + (nodes.length * 40), audioCtx.currentTime);
       gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
       osc.start();
@@ -83,6 +83,27 @@ export default function SoujatyaGame({ onComplete }) {
 
       {/* Interactive Mind Map Space */}
       <div className="map-canvas-container" style={styles.mapCanvas}>
+        {/* SVG connection lines overlay */}
+        <svg style={styles.svgOverlay}>
+          {nodes.map((node) => {
+            if (!node.parentId) return null;
+            const parent = nodes.find((n) => n.id === node.parentId);
+            if (!parent) return null;
+            return (
+              <line
+                key={node.id}
+                x1={`${parent.x}%`}
+                y1={`${parent.y}%`}
+                x2={`${node.x}%`}
+                y2={`${node.y}%`}
+                stroke="#6b7280"
+                strokeWidth="2.5"
+                strokeDasharray="5 5"
+              />
+            );
+          })}
+        </svg>
+
         {nodes.map((node) => (
           <div
             key={node.id}
@@ -92,6 +113,7 @@ export default function SoujatyaGame({ onComplete }) {
               left: `${node.x}%`,
               top: `${node.y}%`,
               transform: 'translate(-50%, -50%)',
+              zIndex: 2,
             }}
           >
             {node.label}
@@ -116,7 +138,7 @@ export default function SoujatyaGame({ onComplete }) {
             You accept the Dada wisdom. Getting lost in a conversation with him is the best part.
           </p>
           <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
-            SUBMIT TO THE RABBIT HOLE 🌌
+            ACCEPT DADA WISDOM 🌌
           </button>
         </div>
       )}
@@ -134,6 +156,7 @@ const styles = {
     color: '#fff',
     maxWidth: '650px',
     margin: '0 auto',
+    position: 'relative',
   },
   hud: {
     display: 'flex',
@@ -170,6 +193,15 @@ const styles = {
     border: '3px solid #000',
     borderRadius: '8px',
     overflow: 'hidden',
+  },
+  svgOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    zIndex: 1,
   },
   logPanel: {
     textAlign: 'left',

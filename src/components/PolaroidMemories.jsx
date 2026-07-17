@@ -119,10 +119,9 @@ export default function PolaroidMemories({ character, onPlayAgain, onBackToSelec
                 }}
               />
               <div style={styles.polaroidDoodle}>
-                <span style={styles.doodleEmoji}>✏️</span>
-                <span style={styles.doodleText}>{p.title}</span>
+                <span style={styles.doodleEmoji}>📸</span>
+                <span style={styles.doodleText}>Memory Photo</span>
               </div>
-              <div className="polaroid-caption">{p.title}</div>
             </div>
           );
         })}

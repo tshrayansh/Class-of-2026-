@@ -7,7 +7,7 @@ export default function AryanGame({ onComplete }) {
   const [aryanChips, setAryanChips] = useState(100);
   const [calcLogs, setCalcLogs] = useState([]);
   const [terminalInput, setTerminalInput] = useState('');
-  const [terminalLogs, setTerminalLogs] = useState(['coding_club_server v1.02. Type help for commands.']);
+  const [terminalLogs, setTerminalLogs] = useState(['coding_club_server v1.02. Type "help" or run system overrides.']);
   const [aryanMode, setAryanMode] = useState(false);
   const [currentHand, setCurrentHand] = useState('Pair of Jacks');
   const [pot, setPot] = useState(20);
@@ -15,21 +15,20 @@ export default function AryanGame({ onComplete }) {
   const handleAction = (type) => {
     if (type === 'fold') {
       setChips((prev) => Math.max(0, prev - 10));
-      setTerminalLogs((prev) => [...prev, 'System: You folded. Expected Value (EV) dropped.']);
+      setTerminalLogs((prev) => [...prev, 'System: Folded. Hand terminated.']);
       setRound((prev) => prev + 1);
     } else if (type === 'call' || type === 'raise') {
       const bet = type === 'raise' ? 30 : 10;
       setChips((prev) => Math.max(0, prev - bet));
       setAryanChips((prev) => Math.max(0, prev - bet));
       setPot((prev) => prev + (bet * 2));
-      setTerminalLogs((prev) => [...prev, `System: You bet ${bet} chips. Aryan bets ${bet} chips.`]);
+      setTerminalLogs((prev) => [...prev, `System: You bet ${bet} chips. Aryan matches.`]);
       
-      // Aryan reacts
       setTimeout(() => {
         if (aryanMode) {
-          setTerminalLogs((prev) => [...prev, 'Aryan: "Wait, you have a Royal Flush?! That is statistically impossible!"']);
+          setTerminalLogs((prev) => [...prev, 'Aryan: "Wait, you actually hit a Royal Flush? The probability of that is 0.00015%!"']);
         } else {
-          setTerminalLogs((prev) => [...prev, 'Aryan: "Interesting play... but game theory suggests you are bluffing."']);
+          setTerminalLogs((prev) => [...prev, 'Aryan: "Game theory suggests you are bluffing here. Expected value doesn\'t support this."']);
         }
         setRound((prev) => prev + 1);
       }, 500);
@@ -38,24 +37,20 @@ export default function AryanGame({ onComplete }) {
 
   const askAryan = () => {
     const mathFormulas = [
-      'EV(Fold) = -10',
-      'P(Royal Flush) = 1/649,740',
-      'EV(Call) = P(Win) * Pot - P(Loss) * Bet',
-      'E = mc^2 -> Expected value is mathematically optimized.',
-      'Game Theory Nash Equilibrium reached at raise parameter theta = 0.42.',
-      'Aryan: "Considering expected value, expected utility, and the current pot odds of 3.2:1..."',
-      'Player: "Bro. Just tell me if I should fold."',
-      'Aryan: "Well, mathematically, it depends on your risk tolerance coefficient..."'
+      'Aryan: "Nash Equilibrium for this hand suggests raising is optimal."',
+      'Aryan: "Expected value calculation: EV = (0.33 * 80) - (0.67 * 20) = 13.0."',
+      'Aryan: "Considering the pot odds are 4 to 1, folding here is mathematically incorrect."',
+      'Aryan: "If we factor in physics and basic card-counting heuristics..."',
+      'You: "Bro. Just tell me if I should fold or not."',
+      'Aryan: "Well, strictly speaking, folding has a negative expectation value..."'
     ];
 
-    // Pick 3 random lines or cycle
     const nextLogs = [
-      mathFormulas[Math.floor(Math.random() * mathFormulas.length)],
       mathFormulas[Math.floor(Math.random() * mathFormulas.length)]
     ];
 
     setCalcLogs((prev) => [...prev, ...nextLogs]);
-    setTerminalLogs((prev) => [...prev, 'Aryan starts calculating Nash equilibria...']);
+    setTerminalLogs((prev) => [...prev, 'Aryan calculates the expected utility...']);
   };
 
   const handleTerminalSubmit = (e) => {
@@ -64,21 +59,19 @@ export default function AryanGame({ onComplete }) {
     setTerminalInput('');
 
     if (command === 'help') {
-      setTerminalLogs((prev) => [...prev, '> ' + command, 'Available commands: help, clear, sudo fix_everything']);
+      setTerminalLogs((prev) => [...prev, '> ' + command, 'Commands: help, clear, sudo fix_everything']);
     } else if (command === 'clear') {
       setTerminalLogs([]);
     } else if (command === 'sudo fix_everything') {
       setAryanMode(true);
-      setCurrentHand('ROYAL FLUSH (A, K, Q, J, 10 of Spades)');
+      setCurrentHand('Royal Flush');
       setTerminalLogs((prev) => [
         ...prev,
         '> ' + command,
-        'ACCESS: GRANTED.',
-        'INITIALIZING ARYAN MODE...',
-        'Hacking server...',
-        'Card conversion complete: Hand upgraded to Royal Flush.'
+        'OVERRIDE: SUCCESSFUL.',
+        'CARD VALUE MODIFIED: Upgraded to Royal Flush.'
       ]);
-      // Play retro hack sound
+      
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -98,6 +91,27 @@ export default function AryanGame({ onComplete }) {
     }
   };
 
+  const getCards = () => {
+    if (aryanMode) {
+      return [
+        { val: '10', suit: '♠', color: '#000' },
+        { val: 'J', suit: '♠', color: '#000' },
+        { val: 'Q', suit: '♠', color: '#000' },
+        { val: 'K', suit: '♠', color: '#000' },
+        { val: 'A', suit: '♠', color: '#000' }
+      ];
+    } else {
+      return [
+        { val: 'J', suit: '♠', color: '#000' },
+        { val: 'J', suit: '♦', color: '#ff477e' },
+        { val: '2', suit: '♣', color: '#000' },
+        { val: '7', suit: '♥', color: '#ff477e' },
+        { val: 'Q', suit: '♠', color: '#000' }
+      ];
+    }
+  };
+
+  const cards = getCards();
   const gameWon = round >= 4 || aryanMode;
 
   return (
@@ -115,14 +129,22 @@ export default function AryanGame({ onComplete }) {
         {/* Opponent Area */}
         <div style={styles.opponentArea}>
           <span style={styles.avatar}>🧑‍💻</span>
-          <span style={styles.name}>Aryan (Bhopal Physics)</span>
-          <div style={styles.bubble}>"Let's calculate the wagers."</div>
+          <span style={styles.name}>Aryan (Bhopal / Physics)</span>
+          <div style={styles.bubble}>"Let's see what the math says."</div>
         </div>
 
-        {/* Player Cards */}
+        {/* Player Cards rendering */}
         <div style={styles.playerCards}>
-          <div style={styles.cardHeader}>YOUR HAND:</div>
-          <div className="text-mono" style={styles.cardVal}>{currentHand}</div>
+          <div style={styles.cardHeader}>YOUR HAND ({currentHand}):</div>
+          <div style={styles.cardsRow}>
+            {cards.map((card, i) => (
+              <div key={i} style={{ ...styles.pokerCard, color: card.color }}>
+                <span style={styles.cardCorner}>{card.val}</span>
+                <span style={styles.cardSuit}>{card.suit}</span>
+                <span style={{ ...styles.cardCorner, ...styles.cardCornerBottom }}>{card.val}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Control actions */}
@@ -162,7 +184,7 @@ export default function AryanGame({ onComplete }) {
                 value={terminalInput}
                 onChange={(e) => setTerminalInput(e.target.value)}
                 className="cli-input"
-                placeholder="type 'sudo fix_everything'..."
+                placeholder="Type 'sudo fix_everything'..."
               />
             </form>
           </div>
@@ -171,7 +193,7 @@ export default function AryanGame({ onComplete }) {
 
       {gameWon && (
         <div style={styles.winBox}>
-          <p style={styles.winText}>Aryan: "Fair enough. That was a high EV hand. Let's see my memories."</p>
+          <p style={styles.winText}>Aryan: "You actually won. The probability model didn't expect that override."</p>
           <button onClick={onComplete} className="btn-neo secondary animate-bounce-hover" style={styles.completeBtn}>
             CLAIM ACHIEVEMENT
           </button>
@@ -218,71 +240,104 @@ const styles = {
     border: '2.5px solid #333',
   },
   felt: {
-    minHeight: '260px',
+    minHeight: '280px',
     border: '4px solid #5c4033',
     borderRadius: '24px',
-    padding: '20px',
+    padding: '15px',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    backgroundColor: '#0b6623',
+    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.6)',
   },
   opponentArea: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '2px',
   },
   avatar: {
-    fontSize: '2.5rem',
+    fontSize: '2rem',
   },
   name: {
     fontFamily: "'Fredoka', sans-serif",
-    fontSize: '0.85rem',
+    fontSize: '0.8rem',
     fontWeight: 'bold',
   },
   bubble: {
     backgroundColor: '#000',
     border: '2px solid #555',
     borderRadius: '8px',
-    padding: '4px 10px',
-    fontSize: '0.8rem',
+    padding: '2px 8px',
+    fontSize: '0.75rem',
     color: '#10b981',
-    marginTop: '4px',
+    marginTop: '2px',
   },
   playerCards: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    border: '2px dashed #ff477e',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    border: '2px dashed #ffd166',
     borderRadius: '8px',
-    padding: '10px',
-    margin: '15px 0',
+    padding: '10px 5px',
+    margin: '10px 0',
   },
   cardHeader: {
-    fontSize: '0.7rem',
-    color: '#aaa',
+    fontSize: '0.65rem',
+    color: '#ccc',
+    textAlign: 'center',
+    marginBottom: '5px',
   },
-  cardVal: {
-    fontSize: '1.2rem',
-    color: '#ffd166',
+  cardsRow: {
+    display: 'flex',
+    gap: '6px',
+    justifyContent: 'center',
+  },
+  pokerCard: {
+    width: '45px',
+    height: '68px',
+    backgroundColor: '#fff',
+    border: '2px solid #000',
+    borderRadius: '6px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: '3px',
+    boxShadow: '2.5px 2.5px 0px #000',
+    position: 'relative',
+  },
+  cardCorner: {
+    fontSize: '0.75rem',
     fontWeight: 'bold',
+    fontFamily: "'Fredoka', sans-serif",
+    textAlign: 'left',
+    lineHeight: '1',
+  },
+  cardCornerBottom: {
+    textAlign: 'right',
+    transform: 'rotate(180deg)',
+  },
+  cardSuit: {
+    fontSize: '1.5rem',
+    textAlign: 'center',
+    lineHeight: '1',
   },
   controls: {
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: '8px',
+    gap: '6px',
     justifyContent: 'center',
   },
   btn: {
-    fontSize: '0.8rem',
-    padding: '6px 12px',
-    boxShadow: '2px 2px 0px #000',
-    borderWidth: '2px',
+    fontSize: '0.75rem',
+    padding: '6px 10px',
+    boxShadow: '1.5px 1.5px 0px #000',
+    borderWidth: '1.5px',
+    transform: 'none',
   },
   columns: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '15px',
-    marginTop: '20px',
+    marginTop: '15px',
     '@media (max-width: 500px)': {
       gridTemplateColumns: '1fr',
     },
@@ -291,28 +346,28 @@ const styles = {
     textAlign: 'left',
   },
   label: {
-    margin: '0 0 6px 0',
-    fontSize: '0.75rem',
+    margin: '0 0 4px 0',
+    fontSize: '0.7rem',
     color: '#b2b2c2',
   },
   calcPanel: {
-    height: '140px',
+    height: '110px',
     backgroundColor: '#0f0f13',
     padding: '8px',
     borderRadius: '6px',
-    border: '2.5px solid #000',
+    border: '2px solid #000',
     overflowY: 'auto',
   },
   calcLine: {
-    fontSize: '0.75rem',
-    marginBottom: '4px',
+    fontSize: '0.7rem',
+    marginBottom: '3px',
   },
   cli: {
-    height: '140px',
+    height: '110px',
     backgroundColor: '#000',
     padding: '8px',
     borderRadius: '6px',
-    border: '2.5px solid #000',
+    border: '2px solid #000',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -320,29 +375,38 @@ const styles = {
   cliLogs: {
     overflowY: 'auto',
     flexGrow: 1,
-    fontSize: '0.7rem',
+    fontSize: '0.65rem',
     color: '#39ff14',
-    marginBottom: '4px',
+    marginBottom: '2px',
   },
   cliForm: {
     display: 'flex',
     alignItems: 'center',
     borderTop: '1px solid #222',
-    paddingTop: '4px',
+    paddingTop: '2px',
     color: '#39ff14',
-    fontSize: '0.8rem',
+    fontSize: '0.75rem',
+  },
+  cliInput: {
+    background: 'transparent',
+    border: 'none',
+    color: '#39ff14',
+    fontFamily: "'VT323', monospace",
+    fontSize: '0.85rem',
+    outline: 'none',
+    width: '90%',
   },
   winBox: {
-    marginTop: '20px',
+    marginTop: '15px',
     borderTop: '2px dashed #444',
-    paddingTop: '15px',
+    paddingTop: '12px',
     textAlign: 'center',
   },
   winText: {
     fontFamily: "'Fredoka', sans-serif",
-    fontSize: '0.95rem',
+    fontSize: '0.9rem',
     color: '#10b981',
-    marginBottom: '10px',
+    marginBottom: '8px',
   },
   completeBtn: {
     width: '100%',

@@ -129,7 +129,6 @@ export default function CharacterSelect({ onSelectCharacter }) {
                   <span style={styles.statLabel}>CLASS STAT:</span>
                   <span style={styles.statVal} className="text-mono">{char.stat}</span>
                 </div>
-                <p style={styles.bio}>{char.bio}</p>
               </div>
 
               {/* Retro arcade details */}
@@ -179,7 +178,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: '#1b1b22',
-    height: '420px',
+    height: '350px',
     justifyContent: 'space-between',
     padding: '15px',
     border: '3px solid #000',
