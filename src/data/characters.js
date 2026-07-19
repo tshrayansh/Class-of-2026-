@@ -9,11 +9,11 @@ export const characters = [
     bio: 'Classical Malayali dancer and yapper. Always trying to get me to speak in Hindi and asking which identical photo to post.',
     achievement: 'Yap Completed with 5 Tangents 🌸',
     memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'SB_01153-3.jpg'],
-    farewellMessage: `Dear Yuktha,
+    farewellMessage: `Dear Yuktha Chechi,
 
-The lab is going to be a lot quieter without your stories that start with a lab experiment and end in a movie plot or a Myntra dress hunt. Thank you for always making me laugh, reading my mood, and forcing me to converse in Hindi. 
+The lab is going to be a lot quieter without your stories, we all are going to miss you big time. Thank you for always making me laugh, and forcing me to converse in Hindi. 
 
-I hope you keep dancing and find exactly what you are looking for in the next chapter. Good luck, storyteller!`
+I hope you keep dancing and find exactly what you are looking for in the next chapter of your life . Good luck and all the best <3.`
   },
   {
     id: 'anagha',
@@ -25,11 +25,10 @@ I hope you keep dancing and find exactly what you are looking for in the next ch
     bio: 'Cute chechi energy, always working with 50 tabs open. Expert in biology, data science, and helping setup tech equipment.',
     achievement: '50 Tabs Closed & Research Done 🧠',
     memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'WhatsApp Image 2026-07-17 at 04.39.18 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.39.20.jpeg'],
-    farewellMessage: `Dear Anagha,
+    farewellMessage: `Dear Anagha Di,
 
-I will miss seeing you at the entrance seat of the lab, typing away with your bluetooth neckbands on. Thank you for always helping me with biology questions and asking for my help setting up technical equipment. 
-
-Keep making everyone smile with your puppy face, and try to eat and sleep on time. Best wishes for your research and your beloved fish!`
+I will miss seeing you at the lab, always helping and doing all sorts of things. Thank you for always helping me with all my questions and tolerating me. 
+Continue all the hard work and keep rocking whereever you go in life. Apart from work always have some time for yourself and yes. i will keep annoying you <3`
   },
   {
     id: 'anuthi',
@@ -73,11 +72,10 @@ Good luck with the stock markets and physics research. Keep taking calculated ri
     bio: 'Argentina supporter, CR pacing in Crocs, fellow vegetarian, and Proteus hater. Teasing lab helper and Mafia opponent.',
     achievement: 'Crocs Trek Survived & Shrayansh Bullying Done 🐊',
     memories: ['20260111_084746.jpg', 'IMG_20260111_115544.jpg', 'WhatsApp Image 2026-07-17 at 04.39.20 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.39.21 (1).jpeg'],
-    farewellMessage: `Dear Niranjan,
-
-Thank you for being the big brother in the lab. Our shared hatred of Proteus and sharing vegetarian food during lunch made the long hours much more bearable. 
-
-I will miss your constant teasing, your random exam panic countdowns, and you showing up to a trek wearing Crocs. Best of luck, brother! Vamos Argentina!`
+    farewellMessage: `Dear Niranjan Chettan,
+Thank you for being my big brother in  lab. I am going to miss our shared hatred of Proteus and all the weekend conversations . Thankyou for all the veg food recommendations in Kochi. It was every fun being with you in the lab and I wish you all the best for future. 
+I will miss your constant bullying and you showing up to a trek wearing Crocs. 
+(I hope messi wins the worlcup) Happy Graduation !`
   },
   {
     id: 'sam',
@@ -90,10 +88,9 @@ I will miss your constant teasing, your random exam panic countdowns, and you sh
     achievement: 'Shrayansh Gaslit & Water Bottle Guarded 👑',
     memories: ['20260111_084746.jpg', 'IMG_20250829_131248027.jpg', 'IMG_20260111_120020.jpg', 'WhatsApp Image 2026-07-17 at 04.39.19.jpeg', 'WhatsApp Image 2026-07-17 at 04.39.21.jpeg'],
     farewellMessage: `Dear Sam Akka,
-
-Thank you for the Erode snacks, teaching us dance choreos, and letting me steal water from your bottle because I always forgot mine. You are an absolute legend at Mafia and quiz nights. 
-
-The lab won't be the same without your teasing and energy. I hope Silksong finally releases for you. We will miss you!`
+Thank you for the all the snacks from your home town, teaching us dance choreos, and letting me steal water from your bottle because I always forgot mine : )
+You are an absolute legend at Mafia, quiz nights, dance and life. 
+The lab won't be the same without your teasing and energy. Sorry I couldnt be there for your graduation day <insert emo text>, all the best in life and yes keep in touch <3 Happy Graduation !`
   },
   {
     id: 'soujatya',
@@ -107,9 +104,8 @@ The lab won't be the same without your teasing and energy. I hope Silksong final
     memories: ['20260111_084746.jpg', 'IMG-20260201-WA0107.jpg', 'IMG_20250716_162854535.jpg', 'SB_01187-1.jpg'],
     farewellMessage: `Dear Soujatya Dada,
 
-The lab meetings and tea walks will feel empty without your sudden discussions on old Hindi songs, Urdu poetry, forgotten films, and books. You were one of the few people in the lab with whom I could speak openly about work and frustrations. 
-
-Thank you for your warmth and scientific instincts. Best of luck in the next step, Dada!`
+The lab meetings (the questioning) and tea walks will feel empty without your presence. Talks on old Hindi songs,  poetry, forgotten films, and books - we all are going to miss that. Thankyou for always helping me and guiding me with work whenever i needed. 
+I love your photography, please continue to pursue it <3 Best of luck for the future. Happy Graduation !!`
   },
   {
     id: 'gati',
