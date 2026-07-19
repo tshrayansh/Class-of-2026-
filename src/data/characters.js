@@ -42,7 +42,7 @@ Continue all the hard work and keep rocking whereever you go in life. Apart from
     memories: ['WhatsApp Image 2026-07-17 at 04.41.27 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.41.27.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.45.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.59.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.00.jpeg'],
     farewellMessage: `Dear Anuthi Di,
 
-Thank you for making campus feel like home and always being there when I needed advice or help surviving a course. From Diwali preps to Bhopal Poha debates and hours of venting over cold coffee, you have been a pillar of support. 
+Thank you for making campus feel like home and always being there for us . From Diwali preps to late night talsk  and hours of venting over cold coffee in jcafe , i will miss it all. 
 
 I will truly miss you. I hope you find a warm and welcoming home wherever you go next. Thank you for taking care of all of us.`
   },
@@ -56,11 +56,8 @@ I will truly miss you. I hope you find a warm and welcoming home wherever you go
     bio: 'Bhopali physics guy, CMIT president, math genius, and tech wizard. Co-founder of the Coding Club and poker night mastermind.',
     achievement: 'Expected Value Maximized 🃏',
     memories: ['WhatsApp Image 2026-07-17 at 04.41.27.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44 (1).jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44 (2).jpeg', 'WhatsApp Image 2026-07-17 at 04.42.44.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.45.jpeg', 'WhatsApp Image 2026-07-17 at 04.42.59.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.00.jpeg', 'WhatsApp Image 2026-07-17 at 04.43.28.jpeg'],
-    farewellMessage: `Dear Aryan,
-
-Thank you for the endless poker nights, co-founding the coding club, and bringing HTML mailing to campus. Your midnight wagers, physics rants, and tech advice made the batch experience unique. 
-
-Good luck with the stock markets and physics research. Keep taking calculated risks, EV strategist!`
+    farewellMessage: `Dear Aryan Bhaiya ,
+Thank you for all the endless poker nights, founding the coding club, and having our bakcs wheneevr needed . we will miss your room and all the masti and disscussion we had. Thankyou always for advising us  and Good luck with the stock markets and physics research. Keep taking calculated risks!(dont judge this website i vibe coded it all in record time ) `
   },
   {
     id: 'niranjan',
@@ -117,10 +114,9 @@ I love your photography, please continue to pursue it <3 Best of luck for the fu
     bio: 'Cute and sweetest mean friend. Chennai workshop buddy, foodie, evolutionary plasticity fan, and CDH exit delayer.',
     achievement: 'CDH Cafeteria Exit Delayed by 1 Hour 🌐',
     memories: ['WhatsApp Image 2026-07-17 at 04.39.22.jpeg', 'WhatsApp Image 2026-07-17 at 04.44.08 (1).jpeg'],
-    farewellMessage: `Dear Gati,
+    farewellMessage: `Dear Gati, 
+Thank you for the all the  memories, the food hunts, and our petty Diwali fights. IDK i am not big on writing farewell notes but I will miss you <3
 
-Thank you for the Chennai workshop memories, the food hunts, and our petty Diwali fights. Only you can turn a 30-second cafeteria exit into a one-hour social gathering, talking to everyone down to the water filters. 
-
-Keep being unapologetically yourself. Wishing you all the best in your research!`
+Keep being unapologetically yourself. Wishing you all the best in your research!(dont judge this website i vibe coded it all in record time ) `
   }
 ];
